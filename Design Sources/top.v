@@ -34,7 +34,7 @@ configuration settings for the system:
 | 0x05  | phase lsb|
 | 0x06  | width    |
 | 0x07  | start    |
-| 0x08  | stop 	   |
+| 0x08  | stop     |
 |------------------|
 | pulse generator  |
 |------------------|
@@ -85,44 +85,44 @@ described in the Thunderbolt data sheet.
 
 //includes for design sub-modules
 
-//`include "spi_slave.v"
-//`include "regfile.v"
-//`include "uart_rx.v"
-//`include "uart_tx.v"
-//`include "pps_edge_detect.v"
-//`include "pps_divider.v"
-//`include "thunderbolt.v"
-//`include "pulse_generator.v"
+`include "spi_slave.v"
+`include "regfile.v"
+`include "uart_rx.v"
+`include "uart_tx.v"
+`include "pps_edge_detect.v"
+`include "pps_divider.v"
+`include "thunderbolt.v"
+`include "pulse_generator.v"
 
-//`include "parpadeoLED.v" //prueba de que funciona
-
-
-//`include "pll16_10.v" //**********************se agrego pll para bajar clock
+`include "parpadeoLED.v" //prueba de que funciona
 
 
+`include "pll16_10.v" //**********************se agrego pll para bajar clock
 
 module top (
-	 input i_clk_10,//********************se descomenta para usar generador revisar pines igual
+			input i_clk_10,//********************se descomenta para usar generador revisar pines igual
 			//input CLK, //**************************
-	input i_rst,
-	 // SPI
-	input i_sclk,
-	input i_ssel,
-	input i_mosi,
-	output o_miso,
-	// user UART
-	input i_usr_rx,
-	output o_usr_tx,
-	// thunderbolt UART
-	input i_thunder_rx,
-	output o_thunder_tx,
-	// pps divider
-	input i_pps_raw,
-	output o_pps_divided_1,
-	// pulse generator
-	output o_pulse_generated,
-	// led that proves it's working
-	output LED
+			input i_rst,
+			// SPI
+			input i_sclk,
+			input i_ssel,
+			input i_mosi,
+			output o_miso,
+			// user UART
+			input i_usr_rx,
+			output o_usr_tx,
+			// thunderbolt UART
+			input i_thunder_rx,
+			output o_thunder_tx,
+			// pps divider
+			input i_pps_raw,
+			output o_pps_divided_1,
+			// pulse generator
+			output o_pulse_generated,
+
+			// led that proves it's working
+			output LED
+
 		    );
 
 
@@ -131,11 +131,11 @@ module top (
 
 
     parameter div_cantidad = 20000000; //constante
-		parpadeoLED #(.div_cantidad(div_cantidad)) 
-		                  ledblink (.clock(i_clk_10),
-									.blink_led(LED),
-									.reset(i_rst),
-									.salida_prueba()
+		parpadeoLED #(.div_cantidad(div_cantidad)) ledblink
+										(.clock(i_clk_10),
+										.blink_led(LED),
+										.reset(i_rst),
+										.salida_prueba()
 										);
 
 					/*
@@ -184,19 +184,13 @@ module top (
 	wire [15:0] w_packet_data;
 
 	// module instantiation
-	spi_slave SPISLAVE (   .i_clk(i_clk_10), 
-	                       .i_rst(i_rst), 
-	                       .i_SCLK(i_sclk),
-					 	   .i_SSEL(i_ssel), 
-					 	   .i_MOSI(i_mosi),
+	spi_slave SPISLAVE (.i_clk(i_clk_10), .i_rst(i_rst), .i_SCLK(i_sclk),
+					 	   .i_SSEL(i_ssel), .i_MOSI(i_mosi),
 					 	   .o_MISO(o_miso),
 						   .o_packet_received(w_spi_packet_rec),
 					 	   .o_packet_data_received(w_packet_data)
 						  );
-
-
 	//assign o_miso=0;
-
 
 
 	// ---------------------------------------------------
@@ -211,23 +205,23 @@ module top (
 	//reg r_read;
 	//reg [7:0] r_rd_addr;
 	wire [7:0] w_rd_byte;
-	wire [c_FILE_SIZE_BYTES*8-1:0] w_reg_vector;
+	wire [199:0] w_reg_vector;
 
 	// module instantiation
-	regfile #(.FILE_SIZE_BYTES(c_FILE_SIZE_BYTES))
-       FILE (.i_clk(i_clk_10),
-             .i_rst(i_rst),
-             // writing
-             .i_write(r_write),
-             .i_wr_addr(r_wr_addr),
-             .i_wr_byte(r_wr_byte),
-             // reading
-             .i_read(/*r_read*/),
-             .i_rd_addr(/*r_rd_addr*/),
-             .o_rd_byte(/*w_rd_byte*/),
-             // parallel connection to registers that map to pps divider and pulse generator values
-             .o_reg_vector(w_reg_vector)
-            );
+	regfile #(.FILE_SIZE_BYTES(c_FILE_SIZE_BYTES)) FILE
+			 (.i_clk(i_clk_10),
+			 .i_rst(i_rst),
+			 // writing
+		     .i_write(r_write),
+			 .i_wr_addr(r_wr_addr),
+			 .i_wr_byte(r_wr_byte),
+			 // reading
+			 .i_read(/*r_read*/),
+			 .i_rd_addr(/*r_rd_addr*/),
+			 .o_rd_byte(/*w_rd_byte*/),
+			 // parallel connection to registers that map to pps divider and pulse generator values
+			 .o_reg_vector(w_reg_vector)
+			);
 
 	// logic to write to the regfile when a SPI packet has been received
 	always @ (posedge i_clk_10) begin
@@ -305,71 +299,59 @@ module top (
 	wire w_thunder_packet_dv;
 	//wire [0:167] w_thunder_data; //**********AROM
 	wire [135:0] w_thunder_data;
-	// module instantiation
-	thunderbolt THUBLT (.i_clk(i_clk_10),
-                        .i_rst(i_rst),
-					    .i_rx_thunder(i_thunder_rx),
-					    .o_tx_thunder(o_thunder_tx),
-					    .o_thunder_packet_dv(w_thunder_packet_dv),
-					    .o_thunder_data(w_thunder_data)
-					);
-
-	// local 2d array to unpack the thunderbolt data
-//	parameter c_TIM_PACKET_SIZE = 21; //*************AROM
-	parameter c_TIM_PACKET_SIZE = 17;
-	wire [7:0] w_thunder_matrix [0:c_TIM_PACKET_SIZE-1]; // matrix to hold the timing packet bytes
-	// unpacking the packet
-
-	genvar k;
-	for (k=0; k<c_TIM_PACKET_SIZE; k=k+1) begin: THUNDER_UNPACK // iterate over the last 7 bytes in the packet starting at 10
-		assign w_thunder_matrix[k] = w_thunder_data[(k*8)+7:(k*8)];
-	end
-
+	
 	//assign w_thunder_matrix[16] =
 	// wires to provide a parallel connection to the thunderbolt packet data bytes
-	wire [15:0] w_thunder_year;
-	wire [7:0] w_thunder_month;
-	wire [7:0] w_thunder_day;
-	wire [7:0] w_thunder_hour;
-	wire [7:0] w_thunder_minutes;
-	wire [7:0] w_thunder_seconds;
-
-	assign  w_thunder_year[7:0] = w_thunder_matrix[16];
-    assign w_thunder_year[15:8] = w_thunder_matrix[15];
-    assign w_thunder_month = w_thunder_matrix[14];
-    assign w_thunder_day = w_thunder_matrix[13];
-    assign w_thunder_hour = w_thunder_matrix[12];
-    assign w_thunder_minutes = w_thunder_matrix[11];
-    assign w_thunder_seconds = w_thunder_matrix[10];
-
+	wire [7:0]	w_thunder_year_h;
+	wire [7:0]	w_thunder_year_l;
+	wire [7:0]	w_thunder_month;
+	wire [7:0]	w_thunder_day;
+	wire [7:0]	w_thunder_hour;
+	wire [7:0]	w_thunder_minutes;
+	wire [7:0]	w_thunder_seconds;
+	
+	// module instantiation
+	thunderbolt THUBLT (.i_clk					(i_clk_10),
+						.i_rst					(i_rst),
+						.i_rx_thunder			(i_thunder_rx),
+						.o_tx_thunder			(o_thunder_tx),
+						.o_thunder_packet_dv	(w_thunder_packet_dv),
+						.o_thunder_year_h		(w_thunder_year_h),
+						.o_thunder_year_l		(w_thunder_year_l),
+						.o_thunder_month		(w_thunder_month),
+						.o_thunder_day			(w_thunder_day),
+						.o_thunder_hour			(w_thunder_hour),
+						.o_thunder_minutes		(w_thunder_minutes),
+						.o_thunder_seconds		(w_thunder_seconds)
+					);
 
 	//--------------------------------
 	// Pulse generator
 	//--------------------------------
 
 	// module instantiation
-	pulse_generator PULSEGEN (.i_clk(i_clk_10),
-							  .i_rst(i_rst),
-							  .i_pulse_enable(w_pulse_enable),
+	pulse_generator PULSEGEN (.i_clk				(i_clk_10),
+							  .i_rst				(i_rst),
+							  .i_pulse_enable		(w_pulse_enable),
 							  // from user
-							  .i_usr_year(w_usr_year),
-							  .i_usr_month(w_usr_month),
-					          .i_usr_day(w_usr_day),
-							  .i_usr_hour(w_usr_hour),
-							  .i_usr_minutes(w_usr_minutes),
-							  .i_usr_seconds(w_usr_seconds),
-							  .i_usr_width_us(w_usr_width),
-		     					.i_periodic_width(w_periodic_width),
+							  .i_usr_year			(w_usr_year),
+							  .i_usr_month			(w_usr_month),
+					          .i_usr_day			(w_usr_day),
+							  .i_usr_hour			(w_usr_hour),
+							  .i_usr_minutes		(w_usr_minutes),
+							  .i_usr_seconds		(w_usr_seconds),
+							  .i_usr_width_us		(w_usr_width),
+								.i_periodic_width	(w_periodic_width),
 							  // from thunderbolt
-							  .i_thunder_packet_dv(w_thunder_packet_dv),
-							  .i_thunder_year(w_thunder_year),
-							  .i_thunder_month(w_thunder_month),
-							  .i_thunder_day(w_thunder_day),
-							  .i_thunder_hour(w_thunder_hour),
-							  .i_thunder_minutes(w_thunder_minutes),
-							  .i_thunder_seconds(w_thunder_seconds),
+							  .i_thunder_packet_dv	(w_thunder_packet_dv),
+							  .i_thunder_year		({w_thunder_year_h, w_thunder_year_l}),
+							  .i_thunder_month		(w_thunder_month),
+							  .i_thunder_day		(w_thunder_day),
+							  .i_thunder_hour		(w_thunder_hour),
+							  .i_thunder_minutes	(w_thunder_minutes),
+							  .i_thunder_seconds	(w_thunder_seconds),
 							  // pulse output
-							  .o_pulse_out(o_pulse_generated)
+							  .o_pulse_out			(o_pulse_generated)
 							 );
 
 	// ---------------------------------------------------
@@ -415,196 +397,5 @@ module top (
 					 	.i_stop(w_stop),
 					 	.o_pps_divided(o_pps_divided_1)
 				   	    );
-
-	// ---------------------------------------------------
-	// Backchannel UART
-	// ---------------------------------------------------
-
-	parameter c_CLKS_PER_BIT = 1042; // 10*10^6 / 9600 = 1042
-
-	// ------------------------------------------------------------------------------------------
-	// ---------------------------------https://stackoverflow.com/questions/34239645/adding-header-files-in-verilog---------------------------------------------------------
-	// -------------REMEMBER TO REMOVE FOR HARDWARE HERE AND IN THUNDERBOLT MODULE---------------
-	// ------------------------------------------------------------------------------------------
-	// this is just to make the uart faster for simulation purposes
-	//parameter c_CLKS_PER_BIT = 87;
-	// ------------------------------------------------------------------------------------------
-	// ------------------------------------------------------------------------------------------
-	// ------------------------------------------------------------------------------------------
-
-	// receiver module instantiation
-	wire w_rx_dv;
-	wire [7:0] w_rx_byte;
-	uart_rx #(.CLKS_PER_BIT(c_CLKS_PER_BIT))
-        receiver (.i_Clock(i_clk_10),
-                  .i_Rx_Serial(i_usr_rx),
-                  .o_Rx_DV(w_rx_dv),
-                  .o_Rx_Byte(w_rx_byte)
-                 );
-
-	// transmitter module instantiation
-	reg r_tx_dv;
-	reg [7:0] r_tx_byte;
-	wire w_tx_active;
-	wire w_tx_done;
-	uart_tx #(.CLKS_PER_BIT(c_CLKS_PER_BIT)) 
-	 transmitter (.i_Clock(i_clk_10),
-                  .i_Tx_DV(r_tx_dv),
-                  .i_Tx_Byte(r_tx_byte),
-                  .o_Tx_Serial(o_usr_tx),
-                  .o_Tx_Active(w_tx_active),
-                  .o_Tx_Done(w_tx_done)
-                 );
-
-	// logic to send the contents of the reg file over the serial transmitter
-	parameter c_CMD_SEND_REG = 8'hAB;
-	parameter c_CMD_SEND_THUNDER = 8'hAC;
-	parameter c_CMD_EASTER_EGG = 8'hEE;
-	reg [4:0] r_index = 0; // the index of the byte that is being sent
-	reg r_send_regfile = 0; // flag to trigger sending of the regfile over the uart
-	reg r_send_thunder = 0; // flag to trigger sending of the thunderbolt data over the uart
-	reg r_send_easter = 0;
-	wire [7:0] easter [0:1];
-	assign easter[0] = 8'hCA;
-	assign easter[1] = 8'hFE;
-	
-	// mux
-	/*mux3to1 mux1 (.pps_div1(),
-	              .pps_div2(),
-	              .pulse_generator(),
-	              .selector(),
-	.             .channel(Channel1)
-	               ); 
-*/
-/*
-	//agregado prueba
-	always @ (posedge i_clk_10) begin
-		if (i_rst) begin
-			r_tx_dv <= 0;
-			r_tx_byte <= 8'hx;
-			r_index <= 5'd0;
-			r_send_regfile <= 1;
-		end
-		else begin
-			r_tx_dv <= 1;
-			r_tx_byte <= w_thunder_matrix[r_index];
-			if (r_index < 5'd21) begin
-				if(w_tx_done) begin
-						r_index <= r_index + 5'd1;
-				end
-			end
-			else begin
-					r_send_easter <= 0;
-					r_tx_dv <= 0;
-					r_index <= 5'd0;
-			end
-
-		end
-	end*/
-/*
-	//agregado prueba
-	always @ (posedge i_clk_10) begin
-		if (i_rst) begin
-			r_tx_dv <= 0;
-			r_tx_byte <= 8'hx;
-			r_index <= 5'd0;
-			r_send_regfile <= 0;
-		end
-		else begin
-			if (i_usr_rx) begin
-				r_tx_dv <= 1; // transmit
-				r_tx_byte <= w_thunder_matrix[r_index]; // shift the byte to send
-				if(w_tx_done) begin // transmission over
-					if (r_index < 5'd21) begin // haven't reached end of regfile
-						r_index <= r_index + 5'd1; // increment the index
-					end
-					else begin // reached end of regfile
-						r_send_regfile <= 0; // reset the flag
-						r_tx_dv <= 0; // don't transmit
-						r_index <= 0; // reset the index
-					end
-				end
-			end
-		end
-	end
-
-*/
-
-	always @ (posedge i_clk_10) begin
-		if (i_rst) begin
-			r_tx_dv <= 0;
-			r_tx_byte <= 8'hx;
-			r_index <= 0;
-			r_send_regfile <= 0;
-		end
-	    else begin
-			if (r_send_regfile) begin // have received a command to send the regfile
-				r_tx_dv <= 1; // transmit
-				r_tx_byte <= w_reg_matrix[r_index]; // shift the byte to send
-				if(w_tx_done) begin // transmission over
-					if (r_index < 5'd20) begin // haven't reached end of regfile
-						r_index <= r_index + 5'd1; // increment the index
-					end
-					else begin // reached end of regfile
-						r_send_regfile <= 0; // reset the flag
-						r_tx_dv <= 0; // don't transmit
-						r_index <= 0; // reset the index
-					end
-				end
-		end
-			else if (r_send_thunder) begin // same logic but for thunderbolt matrix
-				r_tx_dv <= 1;
-				r_tx_byte <= w_thunder_matrix[r_index];
-				if(w_tx_done) begin
-					if (r_index < 5'd16) begin
-						r_index <= r_index + 5'd1;
-					end
-					else begin
-						r_send_thunder <= 0;
-						r_tx_dv <= 0;
-						r_index <= 0;
-					end
-				end
-			end
-			else if (r_send_easter) begin
-				r_tx_dv <= 1;
-				r_tx_byte <= easter[r_index];
-				if(w_tx_done) begin
-					if (r_index < 5'd1) begin
-						r_index <= r_index + 5'd1;
-					end
-					else begin
-						r_send_easter <= 0;
-						r_tx_dv <= 0;
-						r_index <= 0;
-					end
-				end
-			end
-			else begin // haven't received a command to send the regfile or thunder data
-				r_tx_dv <= 0; // don't transmit
-				if (w_rx_dv) begin // received a byte
-					if (w_rx_byte == c_CMD_SEND_REG) begin // received a command to send the regfile
-						r_send_regfile <= 1; // set the flag to send the contents of the regfile
-						r_tx_byte <= c_CMD_SEND_REG;
-					end
-					else if (w_rx_byte == c_CMD_SEND_THUNDER) begin // received a command to send the thunder data
-						r_send_thunder <= 1;
-						r_tx_byte <= c_CMD_SEND_THUNDER;
-					end
-					else if (w_rx_byte == c_CMD_EASTER_EGG) begin // teehee
-						r_send_easter <= 1;
-						r_tx_byte <= c_CMD_EASTER_EGG;
-					end
-					else begin // received some other byte
-						r_tx_dv <= 1; // transmit
-						r_tx_byte <= w_rx_byte; // send an echo of the received byte
-						r_send_regfile <= 0; // don't send the file
-						r_send_thunder <= 0; // don't send the thunder data
-						r_send_easter <= 0;
-					end
-				end
-			end
-		end
-	end
 
 endmodule

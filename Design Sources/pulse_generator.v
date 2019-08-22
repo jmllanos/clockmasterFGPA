@@ -26,12 +26,9 @@ module pulse_generator (input i_clk,
 					   	input [7:0] i_thunder_hour,
 						input [7:0] i_thunder_minutes,
 						input [7:0] i_thunder_seconds,
-
-
 						// pulse
 					   	output o_pulse_out
 					  );
-
 
 	// ---------------------------------------------------
 	// PPS detection logic
@@ -199,7 +196,7 @@ module pulse_generator (input i_clk,
 		else begin
 
 			if (r_state == s_COUNT_MICRO ) begin
-				if (r_clk_counter < c_CLKS_PER_1_US-1) begin
+				if (r_clk_counter < c_CLKS_PER_1_US) begin
 					r_clk_counter <= r_clk_counter + 1;
 				end
 				else begin

@@ -6,32 +6,45 @@ description:
 
 This module interfaces with the Thunderbolt GPS clock with UART and performs the following tasks -
 1. configure the thunderbolt to output UTC time by sending the 8E-A2 packet: (DLE, x"8E", x"A2", x"01", DLE, ETX)
-	2. configure the thunderbolt to only output the AB byte by sending the 8E-A5 packet: (DLE, x"8E", x"A5", x"00", x"01", x"00", x"00", DLE, ETX);
-	3. continuously read from the thunderbolt to receive the 8F-AB timing packet once per second
+2. configure the thunderbolt to only output the AB byte by sending the 8E-A5 packet: (DLE, x"8E", x"A5", x"00", x"01", x"00", x"00", DLE, ETX);
+3. continuously read from the thunderbolt to receive the 8F-AB timing packet once per second
 
-	**********************************************************************/
+**********************************************************************/
 
-	/*********************************************************************
+/*********************************************************************
 file: thunderbol.v (version 2.0)
 author: Arom Miranda
-descripction:
+description:
 -To send the initial packets to the ThunderB GPS the sequence of bytes are saved in a multiplexor and not in matrix registors
 -An Algorithmic State Machine  (ASM) has been programmed instead of the old process for sending the initial packets (functioning ok)
 
 Suggestions: Another ASM should be programmed for receiving the UTC, though the old process described in Loise version seems to work.
 
-	*/
+**********************************************************************/
+
+/*********************************************************************
+file: thunderbol.v (version 2.1)
+author: Victor Vasquez
+description:
+- 'output reg [135:0] o_thunder_data' replaced by vectors of 8-bits representing time of day,
+  these will go to pulse_generator blocks and to a register map
+**********************************************************************/
 
 	module thunderbolt (input i_clk,
 						input i_rst,
 						// rs232 connection
 						input i_rx_thunder,  // serial from thunderbolt
 						output o_tx_thunder, // serial to thunderbolt
-						// output data
 						//output o_thunder_packet_dv, // flag to indicate that thunder packet data is valid
 						output reg o_thunder_packet_dv,
-						//output [0:167] o_thunder_data // vector that contains contents of thunderbolt packet (vector size = 17*8-1 = 135)
-						output reg [135:0] o_thunder_data
+						// data that contains contents of thunderbolt packet
+						output reg   [7:0] o_thunder_year_h,
+						output reg   [7:0] o_thunder_year_l,
+						output reg   [7:0] o_thunder_month,
+						output reg   [7:0] o_thunder_day,
+						output reg   [7:0] o_thunder_hour,
+						output reg   [7:0] o_thunder_minutes,
+						output reg   [7:0] o_thunder_seconds
 					   );
 
 		// ---------------------------------------------------
@@ -109,7 +122,7 @@ Suggestions: Another ASM should be programmed for receiving the UTC, though the 
 
 	*/
 
-		// ---------------------------------------------------
+	// ---------------------------------------------------
 	// uart transmitter and receiver instantiation
 	// ---------------------------------------------------
 
@@ -494,16 +507,17 @@ assign o_thunder_data = r_thunder_data;
 					r_receiving_flag <= 0; // reset receiving flag
 					r_rec_index <= 0; // reset the byte index
 					o_thunder_packet_dv <= 1; // set data valid flag
-					o_thunder_data <= {r_byte_vector[16], r_byte_vector[15], r_byte_vector[14],
-									   r_byte_vector[13], r_byte_vector[12], r_byte_vector[11],
-									   r_byte_vector[10], r_byte_vector[9], r_byte_vector[8],
-									   r_byte_vector[7], r_byte_vector[6], r_byte_vector[5],
-									   r_byte_vector[4], r_byte_vector[3], r_byte_vector[2],
-									   r_byte_vector[1], r_byte_vector[0]}; // set output data vector
+					// matching data to output
+					o_thunder_year_l	<= r_byte_vector[16];
+					o_thunder_year_h	<= r_byte_vector[15];
+					o_thunder_month 	<= r_byte_vector[14];
+					o_thunder_day 		<= r_byte_vector[13];
+					o_thunder_hour 		<= r_byte_vector[12];
+					o_thunder_minutes 	<= r_byte_vector[11];
+					o_thunder_seconds 	<= r_byte_vector[10]; 
 				end
 			end
 		end
 	end
-
 
 endmodule
