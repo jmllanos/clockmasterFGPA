@@ -58,6 +58,9 @@ added by Arom Miranda
 | 0x18| periodic width lsb
 |-------|----------|
 
+added by Juan Llanos
+| 0x19| Channel selector
+ 
 This system also has a backchannel UART which is useful for
 setting up and debugging the system. The backchannel provides
 a method for reading the contents of the Register File as well
@@ -123,7 +126,7 @@ module top (
 	output o_pulse_generated,
 	// led that proves it's working
 	output LED
-		    );
+	);
 
 
   //-------------------------------------------------------
@@ -204,10 +207,10 @@ module top (
 	// ---------------------------------------------------
 
 	// IOs
-	parameter c_FILE_SIZE_BYTES = 25;
-	reg r_write;
-	reg [7:0] r_wr_addr;
-	reg [7:0] r_wr_byte;
+	parameter c_FILE_SIZE_BYTES = 26;
+	wire r_write;
+	wire [7:0] r_wr_addr;
+	wire [7:0] r_wr_byte;
 	//reg r_read;
 	//reg [7:0] r_rd_addr;
 	wire [7:0] w_rd_byte;
@@ -230,18 +233,16 @@ module top (
             );
 
 	// logic to write to the regfile when a SPI packet has been received
-	always @ (posedge i_clk_10) begin
-		if (w_spi_packet_rec && w_packet_data[15:8] < 8'd25) begin // received a packet and packet has a valid address
-			r_wr_byte <= w_packet_data[7:0];  // set data - last byte of packet
-			r_wr_addr <= w_packet_data[15:8]; // set address - first byte of packet
-			r_write <= 1; // write
-		end
-		else begin
-			r_wr_byte <= 8'dx;
-			r_wr_addr <= 8'dx;
-			r_write <= 0;
-		end
-	end
+regfile_control  #(.FILE_SIZE_BYTES(26))
+     file_control(
+            .i_clk_10(i_clk_10),
+            .w_spi_packet_rec(w_spi_packet_rec),
+            .w_packet_data(w_packet_data),
+            .r_wr_byte(r_wr_byte),
+            .r_wr_addr(r_wr_addr),
+            .r_write(r_write)
+    );
+
 
 	// local 2d array to provide a parallel connection to the regFile registers
 	wire [7:0] w_reg_matrix [0:c_FILE_SIZE_BYTES-1];
@@ -297,9 +298,11 @@ module top (
 	assign w_periodic_width[23:16] = w_reg_matrix[22];
 	assign w_periodic_width[15:8] = w_reg_matrix[23];
 	assign w_periodic_width[7:0] = w_reg_matrix[24];
-	//--------------------------------
+
+
 	// Thunderbolt Communication
 	//--------------------------------
+	
 
 	// IOs
 	wire w_thunder_packet_dv;
@@ -334,7 +337,7 @@ module top (
 	wire [7:0] w_thunder_minutes;
 	wire [7:0] w_thunder_seconds;
 
-	assign  w_thunder_year[7:0] = w_thunder_matrix[16];
+	assign w_thunder_year[7:0] = w_thunder_matrix[16];
     assign w_thunder_year[15:8] = w_thunder_matrix[15];
     assign w_thunder_month = w_thunder_matrix[14];
     assign w_thunder_day = w_thunder_matrix[13];
@@ -346,7 +349,7 @@ module top (
 	//--------------------------------
 	// Pulse generator
 	//--------------------------------
-
+    wire pulse_generated;
 	// module instantiation
 	pulse_generator PULSEGEN (.i_clk(i_clk_10),
 							  .i_rst(i_rst),
@@ -402,7 +405,7 @@ module top (
 	end
 	// ---------------------
 	*/
-
+	wire pps_divided_1;
 	// module instantiation
 	pps_divider PPSDIV (.i_clk_10(i_clk_10),
 						.i_rst(i_rst),
@@ -443,8 +446,8 @@ module top (
                  );
 
 	// transmitter module instantiation
-	reg r_tx_dv;
-	reg [7:0] r_tx_byte;
+	wire r_tx_dv;
+	wire [7:0] r_tx_byte;
 	wire w_tx_active;
 	wire w_tx_done;
 	uart_tx #(.CLKS_PER_BIT(c_CLKS_PER_BIT)) 
@@ -468,143 +471,17 @@ module top (
 	assign easter[0] = 8'hCA;
 	assign easter[1] = 8'hFE;
 	
-	// mux
-	/*mux3to1 mux1 (.pps_div1(),
-	              .pps_div2(),
-	              .pulse_generator(),
-	              .selector(),
-	.             .channel(Channel1)
-	               ); 
-*/
-/*
-	//agregado prueba
-	always @ (posedge i_clk_10) begin
-		if (i_rst) begin
-			r_tx_dv <= 0;
-			r_tx_byte <= 8'hx;
-			r_index <= 5'd0;
-			r_send_regfile <= 1;
-		end
-		else begin
-			r_tx_dv <= 1;
-			r_tx_byte <= w_thunder_matrix[r_index];
-			if (r_index < 5'd21) begin
-				if(w_tx_done) begin
-						r_index <= r_index + 5'd1;
-				end
-			end
-			else begin
-					r_send_easter <= 0;
-					r_tx_dv <= 0;
-					r_index <= 5'd0;
-			end
 
-		end
-	end*/
-/*
-	//agregado prueba
-	always @ (posedge i_clk_10) begin
-		if (i_rst) begin
-			r_tx_dv <= 0;
-			r_tx_byte <= 8'hx;
-			r_index <= 5'd0;
-			r_send_regfile <= 0;
-		end
-		else begin
-			if (i_usr_rx) begin
-				r_tx_dv <= 1; // transmit
-				r_tx_byte <= w_thunder_matrix[r_index]; // shift the byte to send
-				if(w_tx_done) begin // transmission over
-					if (r_index < 5'd21) begin // haven't reached end of regfile
-						r_index <= r_index + 5'd1; // increment the index
-					end
-					else begin // reached end of regfile
-						r_send_regfile <= 0; // reset the flag
-						r_tx_dv <= 0; // don't transmit
-						r_index <= 0; // reset the index
-					end
-				end
-			end
-		end
-	end
-
-*/
-
-	always @ (posedge i_clk_10) begin
-		if (i_rst) begin
-			r_tx_dv <= 0;
-			r_tx_byte <= 8'hx;
-			r_index <= 0;
-			r_send_regfile <= 0;
-		end
-	    else begin
-			if (r_send_regfile) begin // have received a command to send the regfile
-				r_tx_dv <= 1; // transmit
-				r_tx_byte <= w_reg_matrix[r_index]; // shift the byte to send
-				if(w_tx_done) begin // transmission over
-					if (r_index < 5'd20) begin // haven't reached end of regfile
-						r_index <= r_index + 5'd1; // increment the index
-					end
-					else begin // reached end of regfile
-						r_send_regfile <= 0; // reset the flag
-						r_tx_dv <= 0; // don't transmit
-						r_index <= 0; // reset the index
-					end
-				end
-		end
-			else if (r_send_thunder) begin // same logic but for thunderbolt matrix
-				r_tx_dv <= 1;
-				r_tx_byte <= w_thunder_matrix[r_index];
-				if(w_tx_done) begin
-					if (r_index < 5'd16) begin
-						r_index <= r_index + 5'd1;
-					end
-					else begin
-						r_send_thunder <= 0;
-						r_tx_dv <= 0;
-						r_index <= 0;
-					end
-				end
-			end
-			else if (r_send_easter) begin
-				r_tx_dv <= 1;
-				r_tx_byte <= easter[r_index];
-				if(w_tx_done) begin
-					if (r_index < 5'd1) begin
-						r_index <= r_index + 5'd1;
-					end
-					else begin
-						r_send_easter <= 0;
-						r_tx_dv <= 0;
-						r_index <= 0;
-					end
-				end
-			end
-			else begin // haven't received a command to send the regfile or thunder data
-				r_tx_dv <= 0; // don't transmit
-				if (w_rx_dv) begin // received a byte
-					if (w_rx_byte == c_CMD_SEND_REG) begin // received a command to send the regfile
-						r_send_regfile <= 1; // set the flag to send the contents of the regfile
-						r_tx_byte <= c_CMD_SEND_REG;
-					end
-					else if (w_rx_byte == c_CMD_SEND_THUNDER) begin // received a command to send the thunder data
-						r_send_thunder <= 1;
-						r_tx_byte <= c_CMD_SEND_THUNDER;
-					end
-					else if (w_rx_byte == c_CMD_EASTER_EGG) begin // teehee
-						r_send_easter <= 1;
-						r_tx_byte <= c_CMD_EASTER_EGG;
-					end
-					else begin // received some other byte
-						r_tx_dv <= 1; // transmit
-						r_tx_byte <= w_rx_byte; // send an echo of the received byte
-						r_send_regfile <= 0; // don't send the file
-						r_send_thunder <= 0; // don't send the thunder data
-						r_send_easter <= 0;
-					end
-				end
-			end
-		end
-	end
+transmision_control trans_control (.i_clk_10(i_clk_10),
+                    .i_rst(i_rst),
+                    .r_tx_dv(r_tx_dv),
+                    .r_tx_byte(r_tx_byte),
+                    .w_tx_done(w_tx_done),
+                    .w_rx_byte(w_rx_byte),
+                    .w_rx_dv(w_rx_dv),
+                    .w_reg_vector(w_reg_vector),
+                    .w_thunder_data(w_thunder_data)
+);
+	
 
 endmodule
