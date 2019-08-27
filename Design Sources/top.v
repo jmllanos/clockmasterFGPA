@@ -89,7 +89,7 @@ described in the Thunderbolt data sheet.
 `include "regfile.v"
 `include "uart_rx.v"
 `include "uart_tx.v"
-`include "pps_edge_detect.v"
+//`include "pps_edge_detect.v"
 `include "pps_divider.v"
 `include "thunderbolt.v"
 `include "pulse_generator.v"

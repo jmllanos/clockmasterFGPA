@@ -23,28 +23,34 @@ Suggestions: Another ASM should be programmed for receiving the UTC, though the 
 **********************************************************************/
 
 /*********************************************************************
-file: thunderbol.v (version 2.1)
+file: thunderbol.v (version 3.0)
 author: Victor Vasquez
 description:
 - 'output reg [135:0] o_thunder_data' replaced by vectors of 8-bits representing time of day,
   these will go to pulse_generator blocks and to a register map
 **********************************************************************/
 
-	module thunderbolt (input i_clk,
-						input i_rst,
+	module thunderbolt (// system
+						input 	i_clk,
+						input 	i_rst,
+						// memory
+						input	i_wr,
+						input	[6:0] i_addr,
+						input	[7:0] i_data,
+						output reg	[7:0] o_data,
 						// rs232 connection
-						input i_rx_thunder,  // serial from thunderbolt
-						output o_tx_thunder, // serial to thunderbolt
-						//output o_thunder_packet_dv, // flag to indicate that thunder packet data is valid
+						input	i_rx_thunder,  // serial from thunderbolt
+						output	o_tx_thunder, // serial to thunderbolt
+						// flag to indicate that thunder packet data is valid
 						output reg o_thunder_packet_dv,
 						// data that contains contents of thunderbolt packet
-						output reg   [7:0] o_thunder_year_h,
-						output reg   [7:0] o_thunder_year_l,
-						output reg   [7:0] o_thunder_month,
-						output reg   [7:0] o_thunder_day,
-						output reg   [7:0] o_thunder_hour,
-						output reg   [7:0] o_thunder_minutes,
-						output reg   [7:0] o_thunder_seconds
+						output reg [7:0] o_thunder_year_h,
+						output reg [7:0] o_thunder_year_l,
+						output reg [7:0] o_thunder_month,
+						output reg [7:0] o_thunder_day,
+						output reg [7:0] o_thunder_hour,
+						output reg [7:0] o_thunder_minutes,
+						output reg [7:0] o_thunder_seconds
 					   );
 
 		// ---------------------------------------------------
@@ -145,11 +151,11 @@ description:
 	wire w_rx_dv; //*******************************************************************
 
 	// receiver
-	uart_rx #(.CLKS_PER_BIT(c_CLKS_PER_BIT)) receiver
-			 (.i_Clock(i_clk),
-			  .i_Rx_Serial(i_rx_thunder),
-			  .o_Rx_DV(w_rx_dv),
-		      .o_Rx_Byte(w_rx_byte)
+	uart_rx #(.CLKS_PER_BIT	(c_CLKS_PER_BIT)) receiver
+			 (.i_Clock		(i_clk),
+			  .i_Rx_Serial	(i_rx_thunder),
+			  .o_Rx_DV		(w_rx_dv),
+		      .o_Rx_Byte	(w_rx_byte)
 			 );
 
 	// transmitter
@@ -158,13 +164,13 @@ description:
 	wire w_tx_done;
 	wire w_tx_active;
 
-	uart_tx #(.CLKS_PER_BIT(c_CLKS_PER_BIT)) transmitter
-			 (.i_Clock(i_clk),
-			  .i_Tx_DV(r_tx_dv),
-			  .i_Tx_Byte(r_tx_byte),
-		      .o_Tx_Serial(o_tx_thunder),
-		      .o_Tx_Active(w_tx_active),
-			  .o_Tx_Done(w_tx_done)
+	uart_tx #(.CLKS_PER_BIT	(c_CLKS_PER_BIT)) transmitter
+			 (.i_Clock		(i_clk),
+			  .i_Tx_DV		(r_tx_dv),
+			  .i_Tx_Byte	(r_tx_byte),
+		      .o_Tx_Serial	(o_tx_thunder),
+		      .o_Tx_Active	(w_tx_active),
+			  .o_Tx_Done	(w_tx_done)
 			 );
 
 //********************************************************
@@ -200,8 +206,6 @@ always @(posedge i_clk) begin
 	else
 		state <= next_state;
 end
-
-
 
 //-- Control signal generation and next states ASM for transmitting packets
 always @(*) begin
@@ -249,108 +253,9 @@ always @(*) begin
   endcase
 end
 
-
-
-/*************************************************
-always @ (posedge i_clk, posedge i_rst) begin
-	if (i_rst) begin
-		r_packet1_sent <= 0;
-		r_packet2_sent <= 0;
-		sent_index <= 0;
-		r_tx_dv <= 0;
-	end
-	else begin
-		if ((!r_packet1_sent) || (!r_packet1_sent)) begin
-				r_tx_dv <=1;
-				r_tx_byte<=r_utc_broadcast_cmd[sent_index];
-				if(sent_index<15)begin
-						if(w_tx_done) begin
-							sent_index <=sent_index+1;
-						end
-
-				end
-				else begin
-					r_packet1_sent <= 1;
-					r_packet2_sent <= 1;
-					sent_index <= 0;
-					r_tx_dv <= 0;
-				end
-		end
-	end
-
-end
-*/
-
-/*
-	always @ (posedge i_clk,posedge i_rst) begin
-		if (i_rst) begin
-			r_packet1_sent <= 0;
-			r_packet2_sent <= 0;
-			sent_index <= 0;
-			r_tx_dv <= 0;w_reg_matrix
-
-		end
-		// send two command packets as soon as system is taken out of reset
-		else begin
-
-			if (!r_packet1_sent) begin // packet 1 has not been sent
-				r_tx_dv <= 1; // continuously transmit bytes
-				r_tx_byte <= r_utc_cmd_packet[sent_index];
-				if(sent_index < 6) begin
-
-					if(w_tx_done)begin
-						sent_index <= sent_index + 1; // increment the index
-					end
-				end
-				else begin
-					r_packet1_sent <= 1;
-					r_tx_dv <= 0; // stop transmission
-					sent_index <= 0; // reset the index
-				end
-			end
-
-			else if (!r_packet2_sent) begin // same logic for the second command packet
-				r_tx_dv <= 1; // continuously transmit bytes
-				r_tx_byte <= r_broadcast_cmd_packet[sent_index];
-				if(sent_index < 9) begin
-					if(w_tx_done)begin
-						sent_index <= sent_index + 1; // increment the index
-					end
-				end
-				else begin
-					r_tx_byte <= 8'dx;
-					r_packet2_sent <= 1;
-					r_tx_dv <= 0; // stop transmission
-					sent_index <= 0; // reset the index
-				end
-			end
-		end
-	end
-
-*/
 	// ---------------------------------------------------
 	// receiving a thunderbolt timing packet
 	// ---------------------------------------------------
-
-
-	//********************************************************
-	//-- asm state
-	reg [2:0] state_rx;
-	reg [2:0] next_state_rx;
-
-	localparam PRE_INI_RX = 0;
-	localparam INI_RX = 1;
-	localparam RXCAR = 2;
-	localparam NEXT_RXCAR = 3;
-	localparam STOP_RX = 4;
-
-	reg [7:0] cena_rx;                //-- Counter enable rx
-	reg r_thunder_packet_dv;
-	reg r_thunder_packet_dv_next;
-
-	reg [0:167]r_thunder_data;
-	reg [0:167]r_thunder_data_next;
-	reg [7:0] prueba;
 
 	parameter c_TIM_ID = 8'h8F;
 	parameter c_TIM_SUBCODE = 8'hAB;
@@ -365,103 +270,6 @@ end
 	reg [7:0] r_rec_index_next;
 	reg r_stuffing_flag = 0; // for accounting for stuffing bytes
 	reg r_receiving_flag = 0;
-
-	// TODO check parallel if blocks potential issues
-/*
-	//-- Transition between states for receiving
-	always @(posedge i_clk) begin
-		if (i_rst) begin
-			state_rx <= PRE_INI_RX;
-			r_rec_index<=0;
-			r_thunder_packet_dv <=0;
-			r_thunder_data <= 0;
-		end
-		else begin
-			state_rx <= next_state_rx;
-			r_rec_index <= r_rec_index_next;
-			r_thunder_packet_dv <= r_thunder_packet_dv_next;
-			r_thunder_data <=r_thunder_data_next;
-			//r_byte_vector[c_TIM_PACKET_SIZE-1:0] <= r_byte_vector_next[c_TIM_PACKET_SIZE-1:0];
-		end
-	end
-
-	always @(*) begin
-		next_state_rx = state_rx;
-		r_rec_index_next =r_rec_index;
-		r_thunder_packet_dv_next = r_thunder_packet_dv;
-		r_thunder_data_next = r_thunder_data;
-		//r_byte_vector_next = r_byte_vector;
-
-		cena_rx = 0;
-
-		case(state_rx)
-			PRE_INI_RX: begin
-				//r_rec_index = 0;
-				r_prev_rx_byte = 8'dx;
-				r_thunder_packet_dv_next = 0;
-				r_rec_index_next =0;
-
-				if ( !r_packet1_sent || !r_packet2_sent) begin
-					next_state_rx = INI;
-				end
-			end
-			INI_RX: begin
-				if (w_rx_dv) begin
-					next_state_rx = RXCAR;
-				end
-				else next_state_rx = INI_RX;
-			end
-
-			RXCAR: begin
-				cena_rx = 1;
-
-				if (r_rec_index_next == 168) begin //if received 21 packets end
-						next_state_rx = STOP_RX;
-				end
-				else begin
-						r_thunder_data_next[r_rec_index+:8]= w_rx_byte;
-						r_rec_index_next = r_rec_index+8;
-						next_state_rx = INI_RX;
-
-				end
-			end
-
-			STOP_RX: begin
-					r_thunder_packet_dv_next = 1;
-					/*r_thunder_data_next [0:167] = {8'h44, 8'h00, 8'hBB,
-							 8'h5, 8'hC0, 8'h30,
-							 8'hA5, 8'hBB, 8'hE8,
-							 8'h2F, 8'h04, 8'h03,
-							 8'hF5, 8'h14, 8'h23,
-							 8'h85, 8'h74, 8'h01,
-						8'hFF, 8'hEE, 8'hCC };
-					next_state_rx = PRE_INI_RX;
-
-					/*
-
-					o_thunder_data = {r_byte_vector[18], r_byte_vector[17], r_byte_vector[16],
-										 r_byte_vector[15], r_byte_vector[14], r_byte_vector[13],
-										 r_byte_vector[12], r_byte_vector[11], r_byte_vector[10],
-										 r_byte_vector[9], r_byte_vector[8], r_byte_vector[7],
-										 r_byte_vector[6], r_byte_vector[5], r_byte_vector[4],
-										 r_byte_vector[3], r_byte_vector[2]}; // set output data vector
-						next_state_rx = PRE_INI_RX;*/
-					/*o_thunder_data <= {r_byte_vector[16], r_byte_vector[15], r_byte_vector[14],
-									   r_byte_vector[13], r_byte_vector[12], r_byte_vector[11],
-									   r_byte_vector[10], r_byte_vector[9], r_byte_vector[8],
-									   r_byte_vector[7], r_byte_vector[6], r_byte_vector[5],
-									   r_byte_vector[4], r_byte_vector[3], r_byte_vector[2],
-									   r_byte_vector[1], r_byte_vector[0]}; // set output data vector
-			end
-
-		endcase
-	end
-
-assign o_thunder_packet_dv = r_thunder_packet_dv;
-assign o_thunder_data = r_thunder_data;
-
-*/
-
 
 
 	always @ (posedge i_clk) begin
@@ -520,4 +328,28 @@ assign o_thunder_data = r_thunder_data;
 		end
 	end
 
+	always @ (posedge i_clk) begin
+		if (i_rst) begin
+			o_data	<= 8'h00;
+		end
+		else begin
+			if (i_wr == 1'b0) begin
+				if (i_addr >= 8'h74 || i_addr <= 8'h7A) begin
+					case (i_addr)
+						8'h07	: o_data <= o_thunder_year_l;
+						8'h08	: o_data <= o_thunder_year_h;
+						8'h09	: o_data <= o_thunder_month;
+						8'h0A	: o_data <= o_thunder_day;
+						8'h0B	: o_data <= o_thunder_hour;
+						8'h0C	: o_data <= o_thunder_minutes;
+						8'h0D	: o_data <= o_thunder_seconds;
+						default	: o_data <= 8'h00;
+					endcase
+				end
+			end
+			else begin
+				o_data <= 8'hCC;
+			end
+		end
+	end
 endmodule

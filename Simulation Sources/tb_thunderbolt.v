@@ -2,7 +2,7 @@
 test bench for thunderbolt module 
 **********************************************************************/
 
-`include "thunderbolt.v"
+//`include "thunderbolt.v"
 
 module tb_thunderbolt(); 
 

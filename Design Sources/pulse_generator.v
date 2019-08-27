@@ -3,32 +3,37 @@
 file: pulse_generator.v
 author: Eloise Perrochet
 description:
+upgrade: Victor Vasquez
+   - in sync with PPS
+   - pulses...
 
 **********************************************************************/
 
-module pulse_generator (input i_clk,
-					    input i_rst,
-						input [7:0] i_pulse_enable,
-						// user config
-						input [15:0] i_usr_year, // four digits of year
-						input [7:0] i_usr_month, // month of the year (0-12)
-						input [7:0] i_usr_day, // day of month (1-31)
-					   	input [7:0] i_usr_hour, // hours (0-23)
-						input [7:0] i_usr_minutes, // minutes (0-59)
-						input [7:0] i_usr_seconds, // seconcds (0-59)
-						input [31:0] i_usr_width_us, // milisecond width of the pulse
-						input [32:0] i_periodic_width, //period of pulse
-					   	// thunderbolt
-						input i_thunder_packet_dv, // thunderbolt data valid flag
-						input [15:0] i_thunder_year,
-						input [7:0] i_thunder_month,
-						input [7:0] i_thunder_day,
-					   	input [7:0] i_thunder_hour,
-						input [7:0] i_thunder_minutes,
-						input [7:0] i_thunder_seconds,
-						// pulse
-					   	output o_pulse_out
-					  );
+module pulse_generator (
+      input i_clk,
+      input i_rst,
+      input [7:0] i_pulse_enable,
+      input i_pps_raw,
+      // user config
+      input [15:0] i_usr_year, // four digits of year
+      input [7:0] i_usr_month, // month of the year (0-12)
+      input [7:0] i_usr_day, // day of month (1-31)
+      input [7:0] i_usr_hour, // hours (0-23)
+      input [7:0] i_usr_minutes, // minutes (0-59)
+      input [7:0] i_usr_seconds, // seconcds (0-59)
+      input [31:0] i_usr_width_us, // milisecond width of the pulse
+      input [32:0] i_periodic_width, //period of pulse
+      // thunderbolt
+      input i_thunder_packet_dv, // thunderbolt data valid flag
+      input [15:0] i_thunder_year,
+      input [7:0] i_thunder_month,
+      input [7:0] i_thunder_day,
+      input [7:0] i_thunder_hour,
+      input [7:0] i_thunder_minutes,
+      input [7:0] i_thunder_seconds,
+      // pulse
+      output o_pulse_out
+     );
 
 	// ---------------------------------------------------
 	// PPS detection logic
@@ -52,12 +57,12 @@ module pulse_generator (input i_clk,
 		s_GET_READY_COUNTER = 4'd9;
 
 	// counter logic
-		parameter c_CLKS_PER_1_US = 10;
-		reg [32:0] r_micro_counter;
-		reg [32:0] r_clk_counter;
+   parameter c_CLKS_PER_1_US = 10;///////////////////:..................
+   reg [32:0] r_micro_counter;
+   reg [32:0] r_clk_counter;
 
-		//parameter TIME_PERIODIC =32'd2000000;//en useg
-		reg [32:0] r_periodic_counter;
+   //parameter TIME_PERIODIC =32'd2000000;//en useg
+   reg [32:0] r_periodic_counter;
 
 	// flag to make sure multiple pulses don't happen before the next thunderbolt packet is received
 	reg r_pulse_valid_flag;
@@ -78,9 +83,6 @@ module pulse_generator (input i_clk,
 	// ---------------------------------------------------
 	// Countdown state machine
 	// ---------------------------------------------------
-
-
-
 
 
 	// state transition logic
