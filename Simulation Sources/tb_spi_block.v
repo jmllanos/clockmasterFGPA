@@ -1,62 +1,59 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Jicamarca Radio Observatory - IGP
-// test_bench: tb_spi
-// module to test: spi_slave
+// test_bench: tb_spi_block
+// Module to test: spi_block
 // Project: Clock master
 //
 // Created by J. Llanos at 08/26/2019
 // 
 // Description: 
-//         --Simulate SPI recepction and transmission 
+//      --Send SPI frames in the format of write and read registers
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module tb_spi_slave();
+module tb_spi_block();
 
 //INPUTS
 reg clk10;
 reg rst;
 reg SCLK;
 reg MOSI;
-reg [7:0]spi_data_tx;
 reg SSEL;
+reg [7:0]data_read_bus;
 
-//OUTPUTS
+//OUTPUS
 wire MISO;
-wire [7:0]spi_data_rx;
-wire spi_ready;
-wire spi_busy;
+wire [7:0]addr_bus;
+wire wr_enable_bus;
+wire [7:0]data_write_bus;
 
-spi_slave dut ( 
-                 .i_clk(clk10), // fpga clock (for over-sampling the SPI bus)
-				 .i_rst(rst), // reset
-				 // SPI connections
-				 .i_SCLK(SCLK), // slave clock from master
-				 .i_SSEL(SSEL), // slave select
-				 .i_MOSI(MOSI), // master out slave in
-				 .o_MISO(MISO), // master in slave out
-				 // SPI data rx/tx
-				 .i_spi_data_tx(spi_data_tx),
-				 .o_spi_data_rx(spi_data_rx),
-				 // SPI signals
-				 .o_spi_ready(spi_ready),
-				 .o_spi_busy(spi_busy)
-		    	  );
+     spi_block DUT (  
+                    .i_clk(clk10),
+                    .i_rst(rst),
+                    //SPI connections
+                    .i_MOSI(MOSI),
+                    .i_SCLK(SCLK),
+                    .i_SSEL(SSEL),
+                    .o_MISO(MISO),
+                    // BUS connections
+                    .i_data_read_bus(data_read_bus),
+                    .o_addr_bus(addr_bus),
+                    .o_data_write_bus(data_write_bus),
+                    .o_wr_enable_bus(wr_enable_bus)
+                    );
 
-
-// CLK PROCESS
-always 
+//CLK PROCESS                    
+  always 
 begin
     clk10 = 1'b1; 
     #5; // high for 20 * timescale = 20 ns
-
     clk10 = 1'b0;
     #5; // low for 20 * timescale = 20 ns
 end
 
-// SCLK PROCESS
+//SCLK PROCESS
 always
 begin
    SCLK<=1'b1;
@@ -64,7 +61,6 @@ begin
    SCLK<=1'b0;
    #100; 
 end
-
 
 initial begin
 		// initialization
@@ -74,20 +70,21 @@ initial begin
 		rst <= 1; 
 		SSEL <= 1;
 		MOSI <= 0;
-		spi_data_tx<=8'hAA;
 		 
 		#10000
-		// start transmission to DUT
-		send_byte(8'hFF); // - random byte 
-		send_byte(8'h12); // - random byte 
-		send_byte(8'h5A); // - random byte 
-		send_byte(8'h11); // - start byte 
-		send_byte(8'h12); // - packet byte 1
-		send_byte(8'hF1); // - packet byte 2
-		send_byte(8'h00); // - packet byte 3
-		send_byte(8'hF4); // - packet byte 4
-		send_byte(8'hF3); // - packet byte 5 
-		send_byte(8'hFF); // - random byte 
+		// start of test cases
+		send_byte(8'hC2); // - write add 42
+		@(negedge clk10);
+		data_read_bus<=8'h15; // - Data to read in bus
+		send_byte(8'h02); // - data 02 
+		send_byte(8'h0A); // - read add 0a 
+		send_byte(8'hF1); // - data F1 
+		send_byte(8'h02); // - read add 02
+		send_byte(8'h01); // - data 01
+		send_byte(8'hF0); // - Write add 70
+		send_byte(8'h04); // - data 04
+		send_byte(8'hF3); // - write add 73
+		send_byte(8'hFF); // - data FF
 		#10000
 		// exit simulation
 		$finish;  
@@ -121,8 +118,6 @@ task send_byte;
 			@(negedge SCLK);
 			SSEL <= 1;
 		end 
-	endtask
-
+	endtask                  
 
 endmodule
-
