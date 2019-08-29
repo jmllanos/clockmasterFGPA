@@ -1,43 +1,58 @@
 /*********************************************************************
 
 file: pulse_generator.v
-author: Eloise Perrochet
+author: Eloise Perrochet (original)
 description:
 upgrade: Victor Vasquez
    - in sync with PPS
-   - pulses...
-
+   - width_low (32 bits instead of 33)
+   - pulses for microsecond reduced by 1, it was delayed once per microsecond
+     and one wrong clk cycle value was at the end of high perdiod
+     pulses at the next cycle started 2 clocks cycles late because of transition
+     of states. Now the states wait for the N-1 width
+   - all counters to 32-bit width
+   - pulse_out waits for pps and its delayed 3 clock cycles max
+   - signal in pulse_out is truly periodic
 **********************************************************************/
 
-module pulse_generator (
-      input i_clk,
-      input i_rst,
-      input [7:0] i_pulse_enable,
-      input i_pps_raw,
-      // user config
-      input [15:0] i_usr_year, // four digits of year
-      input [7:0] i_usr_month, // month of the year (0-12)
-      input [7:0] i_usr_day, // day of month (1-31)
-      input [7:0] i_usr_hour, // hours (0-23)
-      input [7:0] i_usr_minutes, // minutes (0-59)
-      input [7:0] i_usr_seconds, // seconcds (0-59)
-      input [31:0] i_usr_width_us, // milisecond width of the pulse
-      input [32:0] i_periodic_width, //period of pulse
-      // thunderbolt
-      input i_thunder_packet_dv, // thunderbolt data valid flag
-      input [15:0] i_thunder_year,
-      input [7:0] i_thunder_month,
-      input [7:0] i_thunder_day,
-      input [7:0] i_thunder_hour,
-      input [7:0] i_thunder_minutes,
-      input [7:0] i_thunder_seconds,
-      // pulse
-      output o_pulse_out
-     );
+module pulse_generator #(parameter CLKS_PER_1_US = 10)(
+    input i_clk,
+    input i_rst,
+    input [7:0] i_pulse_enable,
+    input i_pps_raw,
+    // user config
+    input [15:0] i_usr_year, // four digits of year
+    input [7:0] i_usr_month, // month of the year (0-12)
+    input [7:0] i_usr_day, // day of month (1-31)
+    input [7:0] i_usr_hour, // hours (0-23)
+    input [7:0] i_usr_minutes, // minutes (0-59)
+    input [7:0] i_usr_seconds, // seconds (0-59)
+    input [31:0] i_width_high, // microsecond width of the pulse
+    input [31:0] i_width_low, //period of pulse
+    // thunderbolt time of day
+    input i_thunder_packet_dv, // thunderbolt data valid flag
+    input [15:0] i_thunder_year,
+    input [7:0] i_thunder_month,
+    input [7:0] i_thunder_day,
+    input [7:0] i_thunder_hour,
+    input [7:0] i_thunder_minutes,
+    input [7:0] i_thunder_seconds,
+    // pulse
+    output reg o_pulse_out
+);
 
+     reg    [1:0]r_pps_raw = 0;
 	// ---------------------------------------------------
 	// PPS detection logic
 	// ---------------------------------------------------
+	always @ (posedge i_clk) begin
+		if (i_rst) begin
+            r_pps_raw <= 0;
+		end
+		else begin
+			r_pps_raw <= {r_pps_raw[0], i_pps_raw};
+		end
+	end   
 
 	// present state and next state variables
 	reg [3:0] r_state;
@@ -53,16 +68,11 @@ module pulse_generator (
 		s_MINUTES = 4'd5,
 		s_SECONDS = 4'd6,
 		s_COUNT_MICRO = 4'd7,
-		s_PERIODIC = 4'd8,
-		s_GET_READY_COUNTER = 4'd9;
+		s_GET_READY_COUNTER = 4'd8;
 
 	// counter logic
-   parameter c_CLKS_PER_1_US = 10;///////////////////:..................
-   reg [32:0] r_micro_counter;
-   reg [32:0] r_clk_counter;
-
-   //parameter TIME_PERIODIC =32'd2000000;//en useg
-   reg [32:0] r_periodic_counter;
+    reg [31:0] r_clk_counter = 0;
+    reg [31:0] r_micro_counter = 0;
 
 	// flag to make sure multiple pulses don't happen before the next thunderbolt packet is received
 	reg r_pulse_valid_flag;
@@ -83,13 +93,11 @@ module pulse_generator (
 	// ---------------------------------------------------
 	// Countdown state machine
 	// ---------------------------------------------------
-
-
 	// state transition logic
 	always @ (*) begin
 		case (r_state)
 			s_COUNTDOWN_IDLE: begin
-				if(i_pulse_enable && r_pulse_valid_flag) begin
+				if(i_pulse_enable[0] && r_pulse_valid_flag) begin
 					r_next_state = s_YEAR;
 				end
 				else begin
@@ -138,7 +146,6 @@ module pulse_generator (
 			end
 			s_SECONDS: begin
 				if (i_usr_seconds == i_thunder_seconds) begin
-					//r_next_state = s_COUNT_MICRO;
 					r_next_state = s_GET_READY_COUNTER;
 				end
 				else begin
@@ -147,29 +154,20 @@ module pulse_generator (
 			end
 
 			s_GET_READY_COUNTER: begin
+                if (r_pps_raw == 2'b01) begin
 					r_next_state = s_COUNT_MICRO;
+                end
 			end
-			s_COUNT_MICRO: begin
-				if (r_micro_counter == i_usr_width_us) begin
-					//r_next_state = s_COUNTDOWN_IDLE;//lois
-					r_next_state = s_PERIODIC;
-				end
-				else begin
-					r_next_state = s_COUNT_MICRO;
-				end
+			
+            s_COUNT_MICRO: begin
+                if (i_pulse_enable == 0) begin
+                    r_next_state = s_COUNTDOWN_IDLE;
+                end
+                else begin
+                    r_next_state = s_COUNT_MICRO;
+                end
 			end
 
-			s_PERIODIC: begin
-
-				if(r_periodic_counter == i_periodic_width) begin
-					r_next_state = s_GET_READY_COUNTER;
-				end
-
-				else begin
-					r_next_state = s_PERIODIC;
-				end
-
-			end
 			default: begin
 				r_next_state = s_COUNTDOWN_IDLE;
 			end
@@ -186,41 +184,43 @@ module pulse_generator (
 		end
 	end
 
-
-
 	always @ (posedge i_clk) begin
-	//if (i_rst || !i_pulse_enable[0] || (r_state != s_COUNT_MICRO)) begin
 		if (i_rst || !i_pulse_enable[0] || r_state == s_GET_READY_COUNTER) begin
 			r_micro_counter <= 0;
 			r_clk_counter <= 0;
-			r_periodic_counter <= 0;
 		end
 		else begin
 
-			if (r_state == s_COUNT_MICRO ) begin
-				if (r_clk_counter < c_CLKS_PER_1_US) begin
+            if (r_state == s_COUNT_MICRO) begin
+                if (r_clk_counter < CLKS_PER_1_US-1) begin
 					r_clk_counter <= r_clk_counter + 1;
 				end
 				else begin
-					r_micro_counter <= r_micro_counter + 1;
 					r_clk_counter <= 0;
 				end
 			end
-
-			if (r_state == s_PERIODIC) begin
-				if (r_clk_counter < c_CLKS_PER_1_US-1) begin
-					r_clk_counter <= r_clk_counter + 1;
+            
+            if (r_state == s_COUNT_MICRO) begin
+                if (r_clk_counter == CLKS_PER_1_US - 1) begin
+					if (r_micro_counter < i_width_low - 1) begin
+                        r_micro_counter <= r_micro_counter + 1;
+                    end
+                    else begin
+                        r_micro_counter <= 0;
+                    end
 				end
-				else begin
-					r_periodic_counter <= r_periodic_counter+1;
-					r_clk_counter <= 0;
-				end
-
 			end
+           
 		end
 	end
 
-	// output logic
-	assign o_pulse_out = (r_state == s_COUNT_MICRO);
+	always @ (posedge i_clk) begin
+		if (i_rst) begin
+			o_pulse_out <= 0;
+		end
+		else begin
+            o_pulse_out <= ((r_micro_counter < i_width_high) && (r_state == s_COUNT_MICRO));
+		end
+	end
 
 endmodule
