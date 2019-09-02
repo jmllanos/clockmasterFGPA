@@ -18,8 +18,10 @@ upgrade: Victor Vasquez
 module pulse_generator #(parameter CLKS_PER_1_US = 10)(
     input i_clk,
     input i_rst,
-    input [7:0] i_pulse_enable,
+    // pps input
     input i_pps_raw,
+    // enable register
+    input [7:0] i_pulse_enable,
     // user config
     input [15:0] i_usr_year, // four digits of year
     input [7:0] i_usr_month, // month of the year (0-12)
@@ -28,7 +30,7 @@ module pulse_generator #(parameter CLKS_PER_1_US = 10)(
     input [7:0] i_usr_minutes, // minutes (0-59)
     input [7:0] i_usr_seconds, // seconds (0-59)
     input [31:0] i_width_high, // microsecond width of the pulse
-    input [31:0] i_width_low, //period of pulse
+    input [31:0] i_width_period, //period of pulse
     // thunderbolt time of day
     input i_thunder_packet_dv, // thunderbolt data valid flag
     input [15:0] i_thunder_year,
@@ -57,7 +59,6 @@ module pulse_generator #(parameter CLKS_PER_1_US = 10)(
 	// present state and next state variables
 	reg [3:0] r_state;
 	reg [3:0] r_next_state;
-
 	// state constants
 	parameter
 		s_COUNTDOWN_IDLE = 4'd0,
@@ -69,7 +70,6 @@ module pulse_generator #(parameter CLKS_PER_1_US = 10)(
 		s_SECONDS = 4'd6,
 		s_COUNT_MICRO = 4'd7,
 		s_GET_READY_COUNTER = 4'd8;
-
 	// counter logic
     reg [31:0] r_clk_counter = 0;
     reg [31:0] r_micro_counter = 0;
@@ -202,7 +202,7 @@ module pulse_generator #(parameter CLKS_PER_1_US = 10)(
             
             if (r_state == s_COUNT_MICRO) begin
                 if (r_clk_counter == CLKS_PER_1_US - 1) begin
-					if (r_micro_counter < i_width_low - 1) begin
+					if (r_micro_counter < i_width_period - 1) begin
                         r_micro_counter <= r_micro_counter + 1;
                     end
                     else begin
@@ -214,6 +214,9 @@ module pulse_generator #(parameter CLKS_PER_1_US = 10)(
 		end
 	end
 
+	// ---------------------------------------------------
+	// output process
+	// ---------------------------------------------------
 	always @ (posedge i_clk) begin
 		if (i_rst) begin
 			o_pulse_out <= 0;

@@ -22,7 +22,7 @@ module tb_pulse_generator();
    reg [7:0] r_usr_minutes; // minutes (0-59)
    reg [7:0] r_usr_seconds; // seconcds (0-59)
    reg [31:0] r_width_high; // microsecond width of the pulse
-   reg [31:0] r_width_low; //period of pulse
+   reg [31:0] r_width_period; //period of pulse
    // thunderbolt
    reg r_thunder_packet_dv; // thunderbolt data valid flag (only one cycle)
    reg [15:0] r_thunder_year;
@@ -49,7 +49,7 @@ module tb_pulse_generator();
         .i_usr_minutes       (r_usr_minutes),
         .i_usr_seconds       (r_usr_seconds),
         .i_width_high        (r_width_high),
-        .i_width_low         (r_width_low),
+        .i_width_period         (r_width_period),
         .i_thunder_packet_dv (r_thunder_packet_dv),
         .i_thunder_year      (r_thunder_year),
         .i_thunder_month     (r_thunder_month),
@@ -88,7 +88,7 @@ module tb_pulse_generator();
       r_usr_minutes     = 8'd55;
       r_usr_seconds     = 8'd30;
       r_width_high      = 32'd2;
-      r_width_low       = 33'd8; //period of pulse
+      r_width_period       = 33'd8; //period of pulse
       r_pulse_enable    = 1;
       r_thunder_packet_dv = 0;
       #500000 $finish;

@@ -30,14 +30,9 @@ description:
   these will go to pulse_generator blocks and to a register map
 **********************************************************************/
 
-	module thunderbolt (// system
+	module thunderbolt (
 						input 	i_clk,
 						input 	i_rst,
-						// memory
-						input	i_wr,
-						input	[6:0] i_addr,
-						input	[7:0] i_data,
-						output reg	[7:0] o_data,
 						// rs232 connection
 						input	i_rx_thunder,  // serial from thunderbolt
 						output	o_tx_thunder, // serial to thunderbolt
@@ -119,15 +114,6 @@ description:
 
 	end
 
-	/*
-
-
-
-	SE AGREGO LO DEL ULTIMO
-
-
-	*/
-
 	// ---------------------------------------------------
 	// uart transmitter and receiver instantiation
 	// ---------------------------------------------------
@@ -135,17 +121,12 @@ description:
 	parameter c_CLKS_PER_BIT = 1042; // 10*10^6 / 9600 = 1042
 
 	// ------------------------------------------------------------------------------------------
-	// ------------------------------------------------------------------------------------------
 	// -------------REMEMBER TO REMOVE FOR HARDWARE HERE AND IN  TB------------------------------
 	// ------------------------------------------------------------------------------------------
 	// ------------------------------------------------------------------------------------------
 	// this is just to make the uart faster for simulation purposes
 	//parameter c_CLKS_PER_BIT = 87;
 	// ------------------------------------------------------------------------------------------
-	// ------------------------------------------------------------------------------------------
-	// ------------------------------------------------------------------------------------------
-	// ------------------------------------------------------------------------------------------
-
 
 	wire [7:0] w_rx_byte;
 	wire w_rx_dv; //*******************************************************************
@@ -172,10 +153,6 @@ description:
 		      .o_Tx_Active	(w_tx_active),
 			  .o_Tx_Done	(w_tx_done)
 			 );
-
-//********************************************************
-
-
 
 //********************************************************
 //-- fsm state
@@ -328,28 +305,4 @@ end
 		end
 	end
 
-	always @ (posedge i_clk) begin
-		if (i_rst) begin
-			o_data	<= 8'h00;
-		end
-		else begin
-			if (i_wr == 1'b0) begin
-				if (i_addr >= 8'h74 || i_addr <= 8'h7A) begin
-					case (i_addr)
-						8'h07	: o_data <= o_thunder_year_l;
-						8'h08	: o_data <= o_thunder_year_h;
-						8'h09	: o_data <= o_thunder_month;
-						8'h0A	: o_data <= o_thunder_day;
-						8'h0B	: o_data <= o_thunder_hour;
-						8'h0C	: o_data <= o_thunder_minutes;
-						8'h0D	: o_data <= o_thunder_seconds;
-						default	: o_data <= 8'h00;
-					endcase
-				end
-			end
-			else begin
-				o_data <= 8'hCC;
-			end
-		end
-	end
 endmodule
