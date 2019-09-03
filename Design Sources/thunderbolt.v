@@ -31,22 +31,22 @@ description:
 **********************************************************************/
 
 	module thunderbolt (
-						input 	i_clk,
-						input 	i_rst,
-						// rs232 connection
-						input	i_rx_thunder,  // serial from thunderbolt
-						output	o_tx_thunder, // serial to thunderbolt
-						// flag to indicate that thunder packet data is valid
-						output reg o_thunder_packet_dv,
-						// data that contains contents of thunderbolt packet
-						output reg [7:0] o_thunder_year_h,
-						output reg [7:0] o_thunder_year_l,
-						output reg [7:0] o_thunder_month,
-						output reg [7:0] o_thunder_day,
-						output reg [7:0] o_thunder_hour,
-						output reg [7:0] o_thunder_minutes,
-						output reg [7:0] o_thunder_seconds
-					   );
+        input 	i_clk,
+        input 	i_rst,
+        // rs232 connection
+        input	i_rx_thunder,  // serial from thunderbolt
+        output	o_tx_thunder, // serial to thunderbolt
+        // flag to indicate that thunder packet data is valid
+        output reg o_thunder_packet_dv,
+        // data that contains contents of thunderbolt packet
+        output reg [7:0] o_thunder_year_h,
+        output reg [7:0] o_thunder_year_l,
+        output reg [7:0] o_thunder_month,
+        output reg [7:0] o_thunder_day,
+        output reg [7:0] o_thunder_hour,
+        output reg [7:0] o_thunder_minutes,
+        output reg [7:0] o_thunder_seconds
+       );
 
 		// ---------------------------------------------------
 		// sending thunderbolt configuration packets

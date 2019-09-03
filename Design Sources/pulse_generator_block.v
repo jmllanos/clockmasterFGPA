@@ -6,7 +6,24 @@ description:
 
 **********************************************************************/
 
-module pulse_generator_block (
+module pulse_generator_block #(
+    parameter PULSE_ENA      = 'h10,
+    parameter USR_YEAR_H     = 'h11,
+    parameter USR_YEAR_L     = 'h12,
+    parameter USR_MONTH      = 'h13,
+    parameter USR_DAY        = 'h14,
+    parameter USR_HOUR       = 'h15,
+    parameter USR_MINUTES    = 'h16,
+    parameter USR_SECONDS    = 'h17,
+    parameter WIDTH_HIGH_3   = 'h18,
+    parameter WIDTH_HIGH_2   = 'h19,
+    parameter WIDTH_HIGH_1   = 'h1A,
+    parameter WIDTH_HIGH_0   = 'h1B,
+    parameter WIDTH_PERIOD_3 = 'h1C,
+    parameter WIDTH_PERIOD_2 = 'h1D,
+    parameter WIDTH_PERIOD_1 = 'h1E,
+    parameter WIDTH_PERIOD_0 = 'h1F
+    )(
     input i_clk,
     input i_rst,
     // memory
@@ -74,9 +91,26 @@ module pulse_generator_block (
         .i_thunder_minutes      (i_thunder_minutes),
         .i_thunder_seconds      (i_thunder_seconds),
         .o_pulse_out            (o_pulse_out)
-        );
+    );
 
-    pulse_generator_registers PGR(
+    pulse_generator_registers #(
+        .PULSE_ENA          (PULSE_ENA),
+        .USR_YEAR_H         (USR_YEAR_H),
+        .USR_YEAR_L         (USR_YEAR_L),
+        .USR_MONTH          (USR_MONTH),
+        .USR_DAY            (USR_DAY),
+        .USR_HOUR           (USR_HOUR),
+        .USR_MINUTES        (USR_MINUTES),
+        .USR_SECONDS        (USR_SECONDS),
+        .WIDTH_HIGH_3       (WIDTH_HIGH_3),
+        .WIDTH_HIGH_2       (WIDTH_HIGH_2),
+        .WIDTH_HIGH_1       (WIDTH_HIGH_1),
+        .WIDTH_HIGH_0       (WIDTH_HIGH_0),
+        .WIDTH_PERIOD_3     (WIDTH_PERIOD_3),
+        .WIDTH_PERIOD_2     (WIDTH_PERIOD_2),
+        .WIDTH_PERIOD_1     (WIDTH_PERIOD_1),
+        .WIDTH_PERIOD_0     (WIDTH_PERIOD_0))
+    PGR(
         .i_clk              (i_clk),
         .i_rst              (i_rst),
         .i_wr               (i_wr),
@@ -99,6 +133,6 @@ module pulse_generator_block (
         .o_width_period_2   (w_width_period_2),
         .o_width_period_1   (w_width_period_1),
         .o_width_period_0   (w_width_period_0) 
-);
+    );
 
 endmodule

@@ -5,6 +5,7 @@ author: Victor Vasquez
 description:
 
 **********************************************************************/
+`include "address_map.vh"//
 
 module thunderbolt_registers (
     input i_clk,
@@ -29,21 +30,21 @@ module thunderbolt_registers (
 			o_data	<= 8'h00;
 		end
 		else begin
+            o_data <= 8'h00;
 			if (i_wr == 1'b0) begin
                 case (i_addr)
-                    8'h07	: o_data <= i_thunder_year_l;
-                    8'h08	: o_data <= i_thunder_year_h;
-                    8'h09	: o_data <= i_thunder_month;
-                    8'h0A	: o_data <= i_thunder_day;
-                    8'h0B	: o_data <= i_thunder_hour;
-                    8'h0C	: o_data <= i_thunder_minutes;
-                    8'h0D	: o_data <= i_thunder_seconds;
-                    default	: o_data <= 8'h00;
+                    `THUNDER_YEAR_L	    : o_data <= i_thunder_year_l;
+                    `THUNDER_YEAR_H	    : o_data <= i_thunder_year_h;
+                    `THUNDER_MONTH	    : o_data <= i_thunder_month;
+                    `THUNDER_DAY	    : o_data <= i_thunder_day;
+                    `THUNDER_HOUR	    : o_data <= i_thunder_hour;
+                    `THUNDER_MINUTES	: o_data <= i_thunder_minutes;
+                    `THUNDER_SECONDS	: o_data <= i_thunder_seconds;
                 endcase
 			end
-			else begin
-				o_data <= 8'hCC;//codigo error
-			end
+//			else begin
+//				o_data <= `ERROR;
+//			end
 		end
 	end
 

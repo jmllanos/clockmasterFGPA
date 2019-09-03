@@ -38,6 +38,7 @@ module thunderbolt_block (
     wire[7:0] w_thunder_seconds;
 
     thunderbolt T(
+        .i_clk              (i_clk),
         .i_rst					(i_rst),
         .i_rx_thunder			(i_rx_thunder),
         .o_tx_thunder			(o_tx_thunder),
@@ -65,7 +66,7 @@ module thunderbolt_block (
         .i_thunder_hour		(w_thunder_hour),
         .i_thunder_minutes	(w_thunder_minutes),
         .i_thunder_seconds	(w_thunder_seconds) 
-);
+    );
 
 assign o_thunder_year_h     = w_thunder_year_h;
 assign o_thunder_year_l     = w_thunder_year_l;
