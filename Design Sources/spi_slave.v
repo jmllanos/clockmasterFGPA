@@ -93,7 +93,7 @@ module spi_slave #(parameter SPI_DATA_SIZE=8)
     //Receive_logic
 	always @(posedge i_clk)
 	begin
-	 if(i_rst==1'b0) 
+	 if(i_rst==1'b1) 
 	   begin
 	       r_bitcnt<=3'b000;
 	       r_byte_data_received<=3'b000;
@@ -143,12 +143,12 @@ module spi_slave #(parameter SPI_DATA_SIZE=8)
     //Transmission_logic
     always @(posedge i_clk)
     begin
-       if(i_rst==1'b0) begin
+       if(i_rst==1'b1) begin
 	      buffer_out<=8'h00;
 	   end
 	   else if (w_SSEL_active) begin
           if (r_bitcnt==3'b000) begin
-              if (w_SCLK_fallingedge) begin
+              if (w_SCLK_risingedge) begin
                   buffer_out<=i_spi_data_tx;
               end
            end
@@ -167,7 +167,7 @@ module spi_slave #(parameter SPI_DATA_SIZE=8)
     reg r_spi_busy;
     always @(posedge i_clk)
     begin
-      if (i_rst==1'b0) begin
+      if (i_rst==1'b1) begin
             r_spi_busy<=1'b1;
       end
       else begin

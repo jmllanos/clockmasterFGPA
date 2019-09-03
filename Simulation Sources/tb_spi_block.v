@@ -64,10 +64,10 @@ end
 
 initial begin
 		// initialization
-		rst <= 0; 
+		rst <= 1; 
 		SSEL <= 0;
 		#10000
-		rst <= 1; 
+		rst <= 0; 
 		SSEL <= 1;
 		MOSI <= 0;
 		 
