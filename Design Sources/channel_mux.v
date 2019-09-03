@@ -21,19 +21,26 @@
 
 
 module channel_mux(
+                    input i_clk,
+                    input i_rst,
                     input i_pps_divided,
                     input i_pulse_generated,
                     input i_enable,
                     input i_selector,
                     output reg o_channel
                     );
-   always@(*)
+   always@(posedge i_clk)
    begin
-    if(i_enable==1)begin
-        case (i_selector)
-                1'b0: o_channel=i_pps_divided;
-                1'b1: o_channel=i_pulse_generated;
-        endcase
-    end 
+   if(i_rst==1'b1)begin
+      o_channel<=0;  
+   end
+   else begin
+        if(i_enable==1)begin
+            case (i_selector)
+                    1'b0: o_channel<=i_pps_divided;
+                    1'b1: o_channel<=i_pulse_generated;
+            endcase
+         end 
+    end
    end 
 endmodule
