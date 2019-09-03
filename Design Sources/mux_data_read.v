@@ -27,7 +27,7 @@ module mux_data_read(
                     input [7:0]i_pps_div_data_1,
                     input [7:0]i_pps_div_data_2,
                     input [7:0]i_pps_div_data_3,
-                    
+                    input [7:0]i_thunder_data,
                     input [7:0]i_pulse_gen_data_0,
                     input [7:0]i_pulse_gen_data_1,
                     input [7:0]i_pulse_gen_data_2,
@@ -47,7 +47,7 @@ module mux_data_read(
         else begin
             w_pps  =i_pps_div_data_0|i_pps_div_data_1|i_pps_div_data_2|i_pps_div_data_3;
             w_pulse=i_pulse_gen_data_0|i_pulse_gen_data_1|i_pulse_gen_data_2|i_pulse_gen_data_3;
-            o_data <= w_pps | w_pulse | i_main_memory_data; 
+            o_data <= w_pps | w_pulse | i_main_memory_data | i_thunder_data; 
              
         end
     end

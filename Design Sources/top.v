@@ -35,6 +35,9 @@ module top (
                 input i_SCLK,
                 input i_SSEL,
                 output o_MISO,
+                // UART
+                input i_rx,
+                output o_tx,
                 // Channel OUTPUTS
                 output o_ch_0,
                 output o_ch_1,
@@ -91,8 +94,8 @@ module top (
         .i_addr                 (w_addr),
         .i_data                 (w_data_write),
         .o_data                 (w_thunder_data_read),
-        .i_rx_thunder	        (i_thunder_rx),
-        .o_tx_thunder		    (o_thunder_tx),
+        .i_rx_thunder	        (i_rx),
+        .o_tx_thunder		    (o_tx),
         .o_thunder_packet_dv    (w_thunder_packet_dv),
         .o_thunder_year_h	    (w_thunder_year_h),
         .o_thunder_year_l	    (w_thunder_year_l),
@@ -363,7 +366,7 @@ module top (
                     .i_pps_div_data_1(w_pps_1_data_read),
                     .i_pps_div_data_2(w_pps_2_data_read),
                     .i_pps_div_data_3(w_pps_3_data_read),
-                    //.i_()w_
+                    .i_thunder_data(w_thunder_data_read),
                     .i_pulse_gen_data_0(w_pg_0_data_read),
                     .i_pulse_gen_data_1(w_pg_1_data_read),
                     .i_pulse_gen_data_2(w_pg_2_data_read),

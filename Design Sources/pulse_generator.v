@@ -60,7 +60,7 @@ module pulse_generator #(parameter CLKS_PER_1_US = 10)(
 	reg [3:0] r_state;
 	reg [3:0] r_next_state;
 	// state constants
-	parameter
+	localparam
 		s_COUNTDOWN_IDLE = 4'd0,
 		s_YEAR = 4'd1,
 		s_MONTH = 4'd2,

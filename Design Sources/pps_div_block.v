@@ -43,12 +43,12 @@ module pps_div_block #(parameter PER_TRUE_ADDR =`PPS_DIV_0_PER_TRUE,
     );
        
  
-  wire [`DATA_WIDTH:0] w_periodic_true; // A flag that determines if the divider output will be periodic or if it will generate for just a time interval
-  wire [`DATA_WIDTH:0] w_div_number; // The integer value you want to the divide the PPS signal 
+  wire [`DATA_WIDTH-1:0] w_periodic_true; // A flag that determines if the divider output will be periodic or if it will generate for just a time interval
+  wire [`DATA_WIDTH-1:0] w_div_number; // The integer value you want to the divide the PPS signal 
   wire [`DATA_WIDTH*4-1:0] w_phase_us; // The delay or phase offset of the divider generated signal in microseconds 
-  wire [`DATA_WIDTH:0] w_width_us; // The time width of the divider signal
-  wire [`DATA_WIDTH:0] w_start; 
-  wire [`DATA_WIDTH:0] w_stop;
+  wire [`DATA_WIDTH-1:0] w_width_us; // The time width of the divider signal
+  wire [`DATA_WIDTH-1:0] w_start; 
+  wire [`DATA_WIDTH-1:0] w_stop;
      
      // Register for PPS DIVIDER configuration
     pps_div_registers #(.PER_TRUE_ADDR(PER_TRUE_ADDR),

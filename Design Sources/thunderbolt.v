@@ -59,7 +59,7 @@ description:
 
 
 
-	reg [7:0] r_utc_cmd_packet [0:5]; // the 0x8E-A2 utc/gps timing config packet
+	/*reg [7:0] r_utc_cmd_packet [0:5]; // the 0x8E-A2 utc/gps timing config packet
 	always @ ( * ) begin
 	r_utc_cmd_packet[0] = c_DLE;
 	r_utc_cmd_packet[1] = c_CMD_ID;
@@ -67,11 +67,10 @@ description:
 	r_utc_cmd_packet[3] = 8'h01;
 	r_utc_cmd_packet[4] = c_DLE;
 	r_utc_cmd_packet[5] = c_ETX;
+	end*/
 
-	end
 
-
-	reg [7:0] r_broadcast_cmd_packet [0:8]; // the 0x8E-A5 broadcast map config packet (should respond with 8F-A5)
+	/*reg [7:0] r_broadcast_cmd_packet [0:8]; // the 0x8E-A5 broadcast map config packet (should respond with 8F-A5)
 	always @ ( * ) begin
 		r_broadcast_cmd_packet[0] = c_DLE;
 		r_broadcast_cmd_packet[1] = c_CMD_ID;
@@ -82,7 +81,7 @@ description:
 		r_broadcast_cmd_packet[6] = 8'h00;
 		r_broadcast_cmd_packet[7] = c_DLE;
 		r_broadcast_cmd_packet[8] = c_ETX;
-	end
+	end*/
 
 	reg r_packet1_sent = 0; // flag to show that the first config packet has been sent
 	reg r_packet2_sent = 0; // flag to show that the second config packet has been sent
@@ -171,7 +170,7 @@ always @(posedge i_clk)begin
   if (i_rst)
     sent_index = 0;
   else if (cena) begin
-    sent_index = sent_index + 1;
+    sent_index = sent_index + 1'b1;
 		r_tx_byte <= r_utc_broadcast_cmd;
 	end
 end
@@ -267,12 +266,12 @@ end
 				// fill the timing packet byte vector with incoming bytes and get rid of stuffing bytes
 				if (r_receiving_flag) begin // package is being received
 					r_byte_vector[r_rec_index] <= w_rx_byte; // set the byte at the correct location in the received byte vector
-					r_rec_index <= r_rec_index + 1;
+					r_rec_index <= r_rec_index + 8'b1;
 					// stuffing byte logic
 					if (w_rx_byte == c_DLE) begin // byte received is DLE byte
 						if (r_prev_rx_byte == c_DLE) begin // received two DLE bytes in a row
 							if (r_stuffing_flag == 0) begin // prev byte was not a stuffing byte
-								r_rec_index <= r_rec_index - 1; // get rid of stuffing byte by decrementing the byte index
+								r_rec_index <= r_rec_index - 8'b1; // get rid of stuffing byte by decrementing the byte index
 								r_stuffing_flag <= 1;
 							end
 							else begin // prev byte was a stuffing byte
