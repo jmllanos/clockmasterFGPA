@@ -58,7 +58,7 @@ module spi_controller(
     //synchronization process
     always @(posedge i_clk)
     begin
-        if(i_rst==1'b0)begin
+        if(i_rst==1'b1)begin
             present_state<=WAIT_ADDR;
         end
         else 
@@ -114,7 +114,7 @@ module spi_controller(
     
     //address decodification logic
     always@(posedge i_clk)
-     if(i_rst==1'b0)begin
+     if(i_rst==1'b1)begin
         o_addr_bus=8'hFF;
         r_wr_enable=1'b0;
      end
@@ -125,7 +125,7 @@ module spi_controller(
     
     //write/read_enable_logic
     always@(posedge i_clk)
-    if(i_rst==1'b0) begin
+    if(i_rst==1'b1) begin
         o_wr_enable_bus<=1'b0;    
     end
     else if((present_state==WRITE_DATA) | (present_state==READ_DATA)) begin
@@ -138,7 +138,7 @@ module spi_controller(
     //data_write_logic
     always@(posedge i_clk)
     begin
-        if(i_rst==1'b0) begin
+        if(i_rst==1'b1) begin
             o_data_write_bus<=8'h00;
         end
         else if((i_spi_ready==1'b1) &&(present_state==WAIT_DATA)) begin
@@ -149,7 +149,7 @@ module spi_controller(
     //read_buffer_logic
     always@(posedge i_clk)
     begin
-        if(i_rst==1'b0) begin
+        if(i_rst==1'b1) begin
             o_spi_data_tx<=`ACK;
         end
         else if(present_state==READ_DATA) begin
