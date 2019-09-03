@@ -188,7 +188,7 @@ module pps_divider ( input i_clk_10, // 10 mhz clock
 	
 	assign w_phase_count_done = (r_phase_counter >= i_phase_us); 
 	assign w_width_count_done = (r_width_counter >= i_width_us); 
-	assign w_div_count_done = (i_div_number == 0) ? 1 : (r_div_counter >= i_div_number - 1); // set the count done to 1 if the div number is 0 
+	assign w_div_count_done = (i_div_number == 0) ? 1'b1 : (r_div_counter >= i_div_number - 1); // set the count done to 1 if the div number is 0 
 	
 	// for accurate time base 
 	localparam c_CLKS_PER_1_US = 10; 
@@ -198,8 +198,8 @@ module pps_divider ( input i_clk_10, // 10 mhz clock
 	begin
 		if (r_state_pps == s_HOLD_FOR_RISING_EDGE_PPS) begin
 			r_phase_counter <= 32'd0; 
-			r_width_counter <= 32'd0; 
-			r_div_counter <= 32'd0;
+			r_width_counter <= 8'd0; 
+			r_div_counter <= 8'd0;
 			r_clk_counter <= 32'd0;  
 		end
 		if (r_state_pps == s_PHASE_COUNT) begin 

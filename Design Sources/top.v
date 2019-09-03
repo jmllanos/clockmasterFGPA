@@ -8,16 +8,6 @@ description:
 **********************************************************/
 `timescale 1ns / 1ps
 
-// includes for design sub-modules
-//`include "components/spi_slave/spi_slave.v"
-//`include "components/regfile/regfile.v"
-//`include "components/uart/uart_rx.v"
-//`include "components/uart/uart_tx.v"
-//`include "components/pps_edge_detect/pps_edge_detect.v"
-//`include "components/pps_divider/pps_divider.v"
-//`include "components/thunderbolt/thunderbolt.v"
-//`include "components/pulse_generator/pulse_generator.v"
-
 //includes for design sub-modules
 
 //`include "spi_slave.v"
@@ -45,6 +35,9 @@ module top (
                 input i_SCLK,
                 input i_SSEL,
                 output o_MISO,
+                // UART
+                input i_rx,
+                output o_tx,
                 // Channel OUTPUTS
                 output o_ch_0,
                 output o_ch_1,
@@ -82,6 +75,37 @@ module top (
             .o_data_write_bus(w_data_write),
             .o_wr_enable_bus(w_wr)
             );
+
+//THUNDERBOLT COMPONENT//////////////////////////////////////////////////////
+    wire [7:0]	w_thunder_data_read;
+	wire w_thunder_packet_dv;
+    wire [7:0]	w_thunder_year_h;
+	wire [7:0]	w_thunder_year_l;
+	wire [7:0]	w_thunder_month;
+	wire [7:0]	w_thunder_day;
+	wire [7:0]	w_thunder_hour;
+	wire [7:0]	w_thunder_minutes;
+	wire [7:0]	w_thunder_seconds;
+
+	thunderbolt_block thunderbolt(
+        .i_clk                  (i_clk_10),
+        .i_rst	                (i_rst),
+        .i_wr                   (w_wr),
+        .i_addr                 (w_addr),
+        .i_data                 (w_data_write),
+        .o_data                 (w_thunder_data_read),
+        .i_rx_thunder	        (i_rx),
+        .o_tx_thunder		    (o_tx),
+        .o_thunder_packet_dv    (w_thunder_packet_dv),
+        .o_thunder_year_h	    (w_thunder_year_h),
+        .o_thunder_year_l	    (w_thunder_year_l),
+        .o_thunder_month	    (w_thunder_month),
+        .o_thunder_day		    (w_thunder_day),
+        .o_thunder_hour		    (w_thunder_hour),
+        .o_thunder_minutes		(w_thunder_minutes),
+        .o_thunder_seconds		(w_thunder_seconds)
+    );
+////////////////////////////////////////////////////////////////////////////
             
      pps_div_block #(.PER_TRUE_ADDR(`PPS_DIV_0_PER_TRUE),
                              .DIV_NUM_ADDR (`PPS_DIV_0_DIV_NUM),
@@ -176,17 +200,177 @@ module top (
                     .o_ch_sel(w_ch_sel)
                     );
  
+//PULSE GENERATOR 0//////////////////////////////////////////////////////////
+	wire w_pg_0_data_read;
+    wire w_pulse_out_0;
+
+    pulse_generator_block #(
+        .PULSE_ENA          (`PG0_PULSE_ENA),
+        .USR_YEAR_H         (`PG0_USR_YEAR_H),
+        .USR_YEAR_L         (`PG0_USR_YEAR_L),
+        .USR_MONTH          (`PG0_USR_MONTH),
+        .USR_DAY            (`PG0_USR_DAY),
+        .USR_HOUR           (`PG0_USR_HOUR),
+        .USR_MINUTES        (`PG0_USR_MINUTES),
+        .USR_SECONDS        (`PG0_USR_SECONDS),
+        .WIDTH_HIGH_3       (`PG0_WIDTH_HIGH_3),
+        .WIDTH_HIGH_2       (`PG0_WIDTH_HIGH_2),
+        .WIDTH_HIGH_1       (`PG0_WIDTH_HIGH_1),
+        .WIDTH_HIGH_0       (`PG0_WIDTH_HIGH_0),
+        .WIDTH_PERIOD_3     (`PG0_WIDTH_PERIOD_3),
+        .WIDTH_PERIOD_2     (`PG0_WIDTH_PERIOD_2),
+        .WIDTH_PERIOD_1     (`PG0_WIDTH_PERIOD_1),
+        .WIDTH_PERIOD_0     (`PG0_WIDTH_PERIOD_0))
+    pulse_gen_0(
+        .i_clk                  (i_clk_10),
+        .i_rst                  (i_rst),
+        .i_wr                   (w_wr),
+        .i_addr                 (w_addr),
+        .i_data                 (w_data_write),
+        .o_data                 (w_pg_0_data_read),
+        .i_pps_raw              (i_pps_raw),
+        .i_thunder_packet_dv    (w_thunder_packet_dv),
+        .i_thunder_year		    ({w_thunder_year_h, w_thunder_year_l}),
+        .i_thunder_month        (w_thunder_month),
+        .i_thunder_day		    (w_thunder_day),
+        .i_thunder_hour		    (w_thunder_hour),
+        .i_thunder_minutes	    (w_thunder_minutes),
+        .i_thunder_seconds	    (w_thunder_seconds),
+        .o_pulse_out            (w_pulse_out_0)
+    );
+////////////////////////////////////////////////////////////////////////////
+
+//PULSE GENERATOR 1//////////////////////////////////////////////////////////
+	wire w_pg_1_data_read;
+    wire w_pulse_out_1;
+
+    pulse_generator_block #(
+        .PULSE_ENA          (`PG1_PULSE_ENA),
+        .USR_YEAR_H         (`PG1_USR_YEAR_H),
+        .USR_YEAR_L         (`PG1_USR_YEAR_L),
+        .USR_MONTH          (`PG1_USR_MONTH),
+        .USR_DAY            (`PG1_USR_DAY),
+        .USR_HOUR           (`PG1_USR_HOUR),
+        .USR_MINUTES        (`PG1_USR_MINUTES),
+        .USR_SECONDS        (`PG1_USR_SECONDS),
+        .WIDTH_HIGH_3       (`PG1_WIDTH_HIGH_3),
+        .WIDTH_HIGH_2       (`PG1_WIDTH_HIGH_2),
+        .WIDTH_HIGH_1       (`PG1_WIDTH_HIGH_1),
+        .WIDTH_HIGH_0       (`PG1_WIDTH_HIGH_0),
+        .WIDTH_PERIOD_3     (`PG1_WIDTH_PERIOD_3),
+        .WIDTH_PERIOD_2     (`PG1_WIDTH_PERIOD_2),
+        .WIDTH_PERIOD_1     (`PG1_WIDTH_PERIOD_1),
+        .WIDTH_PERIOD_0     (`PG1_WIDTH_PERIOD_0))
+    pulse_gen_1(
+        .i_clk                  (i_clk_10),
+        .i_rst                  (i_rst),
+        .i_wr                   (w_wr),
+        .i_addr                 (w_addr),
+        .i_data                 (w_data_write),
+        .o_data                 (w_pg_1_data_read),
+        .i_pps_raw              (i_pps_raw),
+        .i_thunder_packet_dv    (w_thunder_packet_dv),
+        .i_thunder_year		    ({w_thunder_year_h, w_thunder_year_l}),
+        .i_thunder_month        (w_thunder_month),
+        .i_thunder_day		    (w_thunder_day),
+        .i_thunder_hour		    (w_thunder_hour),
+        .i_thunder_minutes	    (w_thunder_minutes),
+        .i_thunder_seconds	    (w_thunder_seconds),
+        .o_pulse_out            (w_pulse_out_1)
+    );
+////////////////////////////////////////////////////////////////////////////
+
+//PULSE GENERATOR 2//////////////////////////////////////////////////////////
+	wire w_pg_2_data_read;
+    wire w_pulse_out_2;
+
+    pulse_generator_block #(
+        .PULSE_ENA          (`PG2_PULSE_ENA),
+        .USR_YEAR_H         (`PG2_USR_YEAR_H),
+        .USR_YEAR_L         (`PG2_USR_YEAR_L),
+        .USR_MONTH          (`PG2_USR_MONTH),
+        .USR_DAY            (`PG2_USR_DAY),
+        .USR_HOUR           (`PG2_USR_HOUR),
+        .USR_MINUTES        (`PG2_USR_MINUTES),
+        .USR_SECONDS        (`PG2_USR_SECONDS),
+        .WIDTH_HIGH_3       (`PG2_WIDTH_HIGH_3),
+        .WIDTH_HIGH_2       (`PG2_WIDTH_HIGH_2),
+        .WIDTH_HIGH_1       (`PG2_WIDTH_HIGH_1),
+        .WIDTH_HIGH_0       (`PG2_WIDTH_HIGH_0),
+        .WIDTH_PERIOD_3     (`PG2_WIDTH_PERIOD_3),
+        .WIDTH_PERIOD_2     (`PG2_WIDTH_PERIOD_2),
+        .WIDTH_PERIOD_1     (`PG2_WIDTH_PERIOD_1),
+        .WIDTH_PERIOD_0     (`PG2_WIDTH_PERIOD_0))
+    pulse_gen_2(
+        .i_clk                  (i_clk_10),
+        .i_rst                  (i_rst),
+        .i_wr                   (w_wr),
+        .i_addr                 (w_addr),
+        .i_data                 (w_data_write),
+        .o_data                 (w_pg_2_data_read),
+        .i_pps_raw              (i_pps_raw),
+        .i_thunder_packet_dv    (w_thunder_packet_dv),
+        .i_thunder_year		    ({w_thunder_year_h, w_thunder_year_l}),
+        .i_thunder_month        (w_thunder_month),
+        .i_thunder_day		    (w_thunder_day),
+        .i_thunder_hour		    (w_thunder_hour),
+        .i_thunder_minutes	    (w_thunder_minutes),
+        .i_thunder_seconds	    (w_thunder_seconds),
+        .o_pulse_out            (w_pulse_out_2)
+    );
+////////////////////////////////////////////////////////////////////////////
+
+//PULSE GENERATOR 3//////////////////////////////////////////////////////////
+	wire w_pg_3_data_read;
+    wire w_pulse_out_3;
+
+    pulse_generator_block #(
+        .PULSE_ENA          (`PG3_PULSE_ENA),
+        .USR_YEAR_H         (`PG3_USR_YEAR_H),
+        .USR_YEAR_L         (`PG3_USR_YEAR_L),
+        .USR_MONTH          (`PG3_USR_MONTH),
+        .USR_DAY            (`PG3_USR_DAY),
+        .USR_HOUR           (`PG3_USR_HOUR),
+        .USR_MINUTES        (`PG3_USR_MINUTES),
+        .USR_SECONDS        (`PG3_USR_SECONDS),
+        .WIDTH_HIGH_3       (`PG3_WIDTH_HIGH_3),
+        .WIDTH_HIGH_2       (`PG3_WIDTH_HIGH_2),
+        .WIDTH_HIGH_1       (`PG3_WIDTH_HIGH_1),
+        .WIDTH_HIGH_0       (`PG3_WIDTH_HIGH_0),
+        .WIDTH_PERIOD_3     (`PG3_WIDTH_PERIOD_3),
+        .WIDTH_PERIOD_2     (`PG3_WIDTH_PERIOD_2),
+        .WIDTH_PERIOD_1     (`PG3_WIDTH_PERIOD_1),
+        .WIDTH_PERIOD_0     (`PG3_WIDTH_PERIOD_0))
+    pulse_gen_3(
+        .i_clk                  (i_clk_10),
+        .i_rst                  (i_rst),
+        .i_wr                   (w_wr),
+        .i_addr                 (w_addr),
+        .i_data                 (w_data_write),
+        .o_data                 (w_pg_3_data_read),
+        .i_pps_raw              (i_pps_raw),
+        .i_thunder_packet_dv    (w_thunder_packet_dv),
+        .i_thunder_year		    ({w_thunder_year_h, w_thunder_year_l}),
+        .i_thunder_month        (w_thunder_month),
+        .i_thunder_day		    (w_thunder_day),
+        .i_thunder_hour		    (w_thunder_hour),
+        .i_thunder_minutes	    (w_thunder_minutes),
+        .i_thunder_seconds	    (w_thunder_seconds),
+        .o_pulse_out            (w_pulse_out_3)
+    );
+////////////////////////////////////////////////////////////////////////////
+
  mux_data_read mux_data(.i_clk(i_clk_10),
                     .i_rst(i_rst),
                     .i_pps_div_data_0(w_pps_0_data_read),
                     .i_pps_div_data_1(w_pps_1_data_read),
                     .i_pps_div_data_2(w_pps_2_data_read),
                     .i_pps_div_data_3(w_pps_3_data_read),
-                    
-                    .i_pulse_gen_data_0(8'd0),
-                    .i_pulse_gen_data_1(8'd0),
-                    .i_pulse_gen_data_2(8'd0),
-                    .i_pulse_gen_data_3(8'd0),
+                    .i_thunder_data(w_thunder_data_read),
+                    .i_pulse_gen_data_0(w_pg_0_data_read),
+                    .i_pulse_gen_data_1(w_pg_1_data_read),
+                    .i_pulse_gen_data_2(w_pg_2_data_read),
+                    .i_pulse_gen_data_3(w_pg_3_data_read),
                     .i_main_memory_data(w_main_memory_data),
                     .o_data(w_data_read)
                     );
@@ -195,7 +379,7 @@ module top (
                     .i_clk(i_clk_10),
                     .i_rst(i_rst),
                     .i_pps_divided(w_pps_divided_0),
-                    .i_pulse_generated(1'b1),
+                    .i_pulse_generated(w_pulse_out_0),
                     .i_enable(w_ch_ena[0]),
                     .i_selector(w_ch_sel[0]),
                     .o_channel(o_ch_0)
@@ -204,7 +388,7 @@ module top (
                     .i_clk(i_clk_10),
                     .i_rst(i_rst),
                     .i_pps_divided(w_pps_divided_1),
-                    .i_pulse_generated(1'b1),
+                    .i_pulse_generated(w_pulse_out_1),
                     .i_enable(w_ch_ena[1]),
                     .i_selector(w_ch_sel[1]),
                     .o_channel(o_ch_1)
@@ -214,7 +398,7 @@ channel_mux mux_2(
                     .i_clk(i_clk_10),
                     .i_rst(i_rst),
                     .i_pps_divided(w_pps_divided_2),
-                    .i_pulse_generated(1'b1),
+                    .i_pulse_generated(w_pulse_out_2),
                     .i_enable(w_ch_ena[2]),
                     .i_selector(w_ch_sel[2]),
                     .o_channel(o_ch_2)
@@ -224,7 +408,7 @@ channel_mux mux_2(
                     .i_clk(i_clk_10),
                     .i_rst(i_rst),
                     .i_pps_divided(w_pps_divided_3),
-                    .i_pulse_generated(1'b1),
+                    .i_pulse_generated(w_pulse_out_3),
                     .i_enable(w_ch_ena[3]),
                     .i_selector(w_ch_sel[3]),
                     .o_channel(o_ch_3)

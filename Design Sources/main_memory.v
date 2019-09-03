@@ -34,8 +34,6 @@ module main_memory( input i_clk,
     
     wire [7:0] w_channel_ena;
     wire [7:0] w_channel_sel;
-    
-    reg [7:0] r_status;
 
     reg [7:0] r_channel_ena;
     reg [7:0] r_channel_sel;
@@ -43,7 +41,6 @@ module main_memory( input i_clk,
     always@(posedge i_clk)
     begin
         if(i_rst==1'b1)begin
-            r_status=0;
             r_channel_sel=0;
             r_channel_ena=0;
         end
