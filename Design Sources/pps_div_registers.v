@@ -18,20 +18,20 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-//|--------------|
-//|  PPS DIVIDER |
-//|   registers  |
-//|--------------|
-//|  per true    |
-//|  div num     |
-//|  phase_0 MSB |
-//|  phase_1     |
-//|  phase_2     |
-//|  phase_3 LSB |
-//|  width       |
-//|  start       |
-//|  stop        |
-//|--------------|
+//  addr      data
+//|------------------|
+//| pps divider      |
+//|------------------|
+//| 0x00  | per true |
+//| 0x01  | div num  |
+//| 0x02  | phase    |
+//| 0x03  | phase    |
+//| 0x04  | phase    |
+//| 0x05  | phase lsb|
+//| 0x06  | width    |
+//| 0x07  | start    |
+//| 0x08  | stop 	 |
+//|-------|----------|
 //
 
 `include "address_map.vh"
@@ -67,6 +67,18 @@ module pps_div_registers #(parameter PER_TRUE_ADDR   =`PPS_DIV_0_PER_TRUE,
 
    always @(posedge i_clk_10)
     begin
+     if(i_rst==1'b1) begin
+       o_periodic_true='h0;
+       o_div_number   ='h0;
+       phase_us_0     ='h0;
+       phase_us_1     ='h0;
+       phase_us_2     ='h0;
+       phase_us_3     ='h0;
+       o_width_us     ='h0;
+       o_start        ='h0;
+       o_stop         ='h0;
+     end
+     else begin
 
          //writing process
          if(i_wr==1)begin
@@ -98,4 +110,6 @@ module pps_div_registers #(parameter PER_TRUE_ADDR   =`PPS_DIV_0_PER_TRUE,
           end
       o_phase_us={phase_us_3,phase_us_2,phase_us_1,phase_us_0};
     end
+   end
 endmodule
+

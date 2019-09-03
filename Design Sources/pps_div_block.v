@@ -51,7 +51,7 @@ module pps_div_block #(parameter PER_TRUE_ADDR =`PPS_DIV_0_PER_TRUE,
   wire [`DATA_WIDTH:0] w_stop;
      
      // Register for PPS DIVIDER configuration
-    pps_div_registers#(.PER_TRUE_ADDR(PER_TRUE_ADDR),
+    pps_div_registers #(.PER_TRUE_ADDR(PER_TRUE_ADDR),
                        .DIV_NUM_ADDR(DIV_NUM_ADDR),
                        .PHASE_0_ADDR(PHASE_0_ADDR),
                        .PHASE_1_ADDR(PHASE_1_ADDR),
