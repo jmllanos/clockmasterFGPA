@@ -1,27 +1,33 @@
 /*********************************************************************
+Jicamarca Radio Observatory
 
 file: pps_divider.v
 author: Eloise Perrochet 
 description: 
- 
-**********************************************************************/
 
-module pps_divider ( 	input i_clk_10, // 10 mhz clock 
-			input i_rst, // reset 
-			input i_pps_raw, // pps signal input 
-			input [7:0] i_periodic_true, // A flag that determines if the divider output will be periodic or if it will generate for just a time interval
-			input [7:0] i_div_number, // The integer value you want to the divide the PPS signal 
-			input [31:0] i_phase_us, // The delay or phase offset of the divider generated signal in microseconds 
-			input [7:0] i_width_us, // The time width of the divider signal
-			input [7:0] i_start, 
-			input [7:0] i_stop,
-			output o_pps_divided
+Change added by J.Llanos at 08/28/2019
+parameterization of data width (bits)
+
+
+**********************************************************************/
+`include "address_map.vh"
+
+module pps_divider ( input i_clk_10, // 10 mhz clock 
+			         input i_rst, // reset 
+			         input i_pps_raw, // pps signal input 
+			         input [`DATA_WIDTH-1:0]  i_periodic_true, // A flag that determines if the divider output will be periodic or if it will generate for just a time interval
+			         input [`DATA_WIDTH-1:0]  i_div_number, // The integer value you want to the divide the PPS signal 
+			         input [`DATA_WIDTH*4-1:0] i_phase_us, // The delay or phase offset of the divider generated signal in microseconds 
+			         input [`DATA_WIDTH-1:0]  i_width_us, // The time width of the divider signal
+			         input [`DATA_WIDTH-1:0]  i_start, 
+			         input [`DATA_WIDTH-1:0]  i_stop,
+			         output o_pps_divided
 			   	   );
 
 	
-	reg [31:0] r_phase_counter = 32'd0; 
-	reg [7:0] r_width_counter = 8'd0;
-	reg [7:0] r_div_counter = 8'd0;
+	reg [`DATA_WIDTH*4-1:0] r_phase_counter = 32'd0; 
+	reg [`DATA_WIDTH-1:0] r_width_counter = 8'd0;
+	reg [`DATA_WIDTH-1:0] r_div_counter = 8'd0;
 	
 	wire w_phase_count_done; 
 	wire w_width_count_done; 
@@ -185,7 +191,7 @@ module pps_divider ( 	input i_clk_10, // 10 mhz clock
 	assign w_div_count_done = (i_div_number == 0) ? 1 : (r_div_counter >= i_div_number - 1); // set the count done to 1 if the div number is 0 
 	
 	// for accurate time base 
-	parameter c_CLKS_PER_1_US = 10; 
+	localparam c_CLKS_PER_1_US = 10; 
 	reg [32:0] r_clk_counter; 
 	
 	always @ (posedge i_clk_10) 
