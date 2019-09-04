@@ -56,7 +56,7 @@ module spi_slave #(parameter SPI_DATA_SIZE=8)
 	assign w_SCLK_fallingedge = (r_SCLK[1:0]==2'b10);  // and falling edges
 
 	// same thing for i_SSEL
-	reg [2:0] r_SSEL;
+	reg [1:0] r_SSEL;
 
 	always @(posedge i_clk)
 	begin

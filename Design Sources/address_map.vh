@@ -21,7 +21,7 @@
 `define _ADDRESS_MAP_VH_
 ////////
 //BUSSES CONFIGURATION
-`define ADDR_WIDTH 8//one bit more
+`define ADDR_WIDTH 7//one bit more
 `define DATA_WIDTH 8
 
 //READ ACKNOLEDGE ANSWER

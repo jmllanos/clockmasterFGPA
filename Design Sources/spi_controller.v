@@ -106,6 +106,8 @@ module spi_controller(
         // WRITE DATA IN THE BUS
         WRITE_DATA: 
                 next_state<=WAIT_ADDR;
+        default:
+                next_state<=WAIT_ADDR; 
         endcase
     end 
     
@@ -119,7 +121,7 @@ module spi_controller(
         r_wr_enable=1'b0;
      end
      else if((i_spi_ready==1'b1) && (present_state==WAIT_ADDR)) begin
-        o_addr_bus<={1'b0,i_spi_data_rx[`DATA_WIDTH-2:0]};
+        o_addr_bus<=i_spi_data_rx[`ADDR_WIDTH-1:0];
         r_wr_enable<=i_spi_data_rx[`DATA_WIDTH-1]; 
      end
     
