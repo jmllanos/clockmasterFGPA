@@ -5,37 +5,38 @@ author: Victor Vasquez
 description:
 
 **********************************************************************/
+`include "address_map.vh"
 
 module thunderbolt_block (
     input i_clk,
     input i_rst,
     // memory
     input	i_wr,
-    input	[6:0] i_addr,
-    input	[7:0] i_data,
-    output  [7:0] o_data,
+    input	[`ADDR_WIDTH-1:0] i_addr,
+    input	[`DATA_WIDTH-1:0] i_data,
+    output  [`DATA_WIDTH-1:0] o_data,
     // rs232 connection
     input	i_rx_thunder,  // serial from thunderbolt
     output	o_tx_thunder, // serial to thunderbolt
     // flag to indicate that thunder packet data is valid
     output  o_thunder_packet_dv,
     // data that contains contents of thunderbolt packet
-    output  [7:0] o_thunder_year_h,
-    output  [7:0] o_thunder_year_l,
-    output  [7:0] o_thunder_month,
-    output  [7:0] o_thunder_day,
-    output  [7:0] o_thunder_hour,
-    output  [7:0] o_thunder_minutes,
-    output  [7:0] o_thunder_seconds
+    output  [`DATA_WIDTH-1:0] o_thunder_year_h,
+    output  [`DATA_WIDTH-1:0] o_thunder_year_l,
+    output  [`DATA_WIDTH-1:0] o_thunder_month,
+    output  [`DATA_WIDTH-1:0] o_thunder_day,
+    output  [`DATA_WIDTH-1:0] o_thunder_hour,
+    output  [`DATA_WIDTH-1:0] o_thunder_minutes,
+    output  [`DATA_WIDTH-1:0] o_thunder_seconds
 );
 
-    wire[7:0] w_thunder_year_h;
-    wire[7:0] w_thunder_year_l;
-    wire[7:0] w_thunder_month;
-    wire[7:0] w_thunder_day;
-    wire[7:0] w_thunder_hour;
-    wire[7:0] w_thunder_minutes;
-    wire[7:0] w_thunder_seconds;
+    wire[`DATA_WIDTH-1:0] w_thunder_year_h;
+    wire[`DATA_WIDTH-1:0] w_thunder_year_l;
+    wire[`DATA_WIDTH-1:0] w_thunder_month;
+    wire[`DATA_WIDTH-1:0] w_thunder_day;
+    wire[`DATA_WIDTH-1:0] w_thunder_hour;
+    wire[`DATA_WIDTH-1:0] w_thunder_minutes;
+    wire[`DATA_WIDTH-1:0] w_thunder_seconds;
 
     thunderbolt T(
         .i_clk              (i_clk),

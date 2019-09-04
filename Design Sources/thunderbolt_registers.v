@@ -12,17 +12,17 @@ module thunderbolt_registers (
     input i_rst,
     // memory
     input	i_wr,
-    input	[6:0] i_addr,
-    input	[7:0] i_data,
-    output reg [7:0] o_data = 8'h00,
+    input	[`ADDR_WIDTH-1:0] i_addr,
+    input	[`DATA_WIDTH-1:0] i_data,
+    output reg [`DATA_WIDTH-1:0] o_data = 8'h00,
     // address
-    input   [7:0] i_thunder_year_h,
-    input   [7:0] i_thunder_year_l,
-    input   [7:0] i_thunder_month,
-    input   [7:0] i_thunder_day,
-    input   [7:0] i_thunder_hour,
-    input   [7:0] i_thunder_minutes,
-    input   [7:0] i_thunder_seconds
+    input   [`DATA_WIDTH-1:0] i_thunder_year_h,
+    input   [`DATA_WIDTH-1:0] i_thunder_year_l,
+    input   [`DATA_WIDTH-1:0] i_thunder_month,
+    input   [`DATA_WIDTH-1:0] i_thunder_day,
+    input   [`DATA_WIDTH-1:0] i_thunder_hour,
+    input   [`DATA_WIDTH-1:0] i_thunder_minutes,
+    input   [`DATA_WIDTH-1:0] i_thunder_seconds
 );
 
 	always @ (posedge i_clk) begin
