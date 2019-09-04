@@ -7,47 +7,47 @@ description:
 **********************************************************************/
 
 module pulse_generator_registers #(
-    parameter PULSE_ENA      = 'h10,
-    parameter USR_YEAR_H     = 'h11,
-    parameter USR_YEAR_L     = 'h12,
-    parameter USR_MONTH      = 'h13,
-    parameter USR_DAY        = 'h14,
-    parameter USR_HOUR       = 'h15,
-    parameter USR_MINUTES    = 'h16,
-    parameter USR_SECONDS    = 'h17,
-    parameter WIDTH_HIGH_3   = 'h18,
-    parameter WIDTH_HIGH_2   = 'h19,
-    parameter WIDTH_HIGH_1   = 'h1A,
-    parameter WIDTH_HIGH_0   = 'h1B,
-    parameter WIDTH_PERIOD_3 = 'h1C,
-    parameter WIDTH_PERIOD_2 = 'h1D,
-    parameter WIDTH_PERIOD_1 = 'h1E,
-    parameter WIDTH_PERIOD_0 = 'h1F
+    parameter PULSE_ENA      = `PG0_PULSE_ENA,
+    parameter USR_YEAR_H     = `PG0_USR_YEAR_H,
+    parameter USR_YEAR_L     = `PG0_USR_YEAR_L,
+    parameter USR_MONTH      = `PG0_USR_MONTH,
+    parameter USR_DAY        = `PG0_USR_DAY,
+    parameter USR_HOUR       = `PG0_USR_HOUR,
+    parameter USR_MINUTES    = `PG0_USR_MINUTES,
+    parameter USR_SECONDS    = `PG0_USR_SECONDS,
+    parameter WIDTH_HIGH_3   = `PG0_WIDTH_HIGH_3,
+    parameter WIDTH_HIGH_2   = `PG0_WIDTH_HIGH_2,
+    parameter WIDTH_HIGH_1   = `PG0_WIDTH_HIGH_1,
+    parameter WIDTH_HIGH_0   = `PG0_WIDTH_HIGH_0,
+    parameter WIDTH_PERIOD_3 = `PG0_WIDTH_PERIOD_3,
+    parameter WIDTH_PERIOD_2 = `PG0_WIDTH_PERIOD_2,
+    parameter WIDTH_PERIOD_1 = `PG0_WIDTH_PERIOD_1,
+    parameter WIDTH_PERIOD_0 = `PG0_WIDTH_PERIOD_0
     )(
     input i_clk,
     input i_rst,
     // memory
     input	i_wr,
-    input	[6:0] i_addr,
-    input	[7:0] i_data,
-    output reg [7:0] o_data,
+    input	[`ADDR_WIDTH-1:0] i_addr,
+    input	[`DATA_WIDTH-1:0] i_data,
+    output reg [`DATA_WIDTH-1:0] o_data,
     // address
-    output reg [7:0] o_pulse_enable,
-    output reg [7:0] o_usr_year_h, // four digits of year
-    output reg [7:0] o_usr_year_l, // four digits of year
-    output reg [7:0] o_usr_month, // month of the year (0-12)
-    output reg [7:0] o_usr_day, // day of month (1-31)
-    output reg [7:0] o_usr_hour, // hours (0-23)
-    output reg [7:0] o_usr_minutes, // minutes (0-59)
-    output reg [7:0] o_usr_seconds, // seconds (0-59)
-    output reg [7:0] o_width_high_3, // microsecond width of the pulse
-    output reg [7:0] o_width_high_2, // microsecond width of the pulse
-    output reg [7:0] o_width_high_1, // microsecond width of the pulse
-    output reg [7:0] o_width_high_0, // microsecond width of the pulse
-    output reg [7:0] o_width_period_3, //period of pulse
-    output reg [7:0] o_width_period_2, //period of pulse
-    output reg [7:0] o_width_period_1, //period of pulse
-    output reg [7:0] o_width_period_0 //period of pulse
+    output reg [`DATA_WIDTH-1:0] o_pulse_enable,
+    output reg [`DATA_WIDTH-1:0] o_usr_year_h, // four digits of year
+    output reg [`DATA_WIDTH-1:0] o_usr_year_l, // four digits of year
+    output reg [`DATA_WIDTH-1:0] o_usr_month, // month of the year (0-12)
+    output reg [`DATA_WIDTH-1:0] o_usr_day, // day of month (1-31)
+    output reg [`DATA_WIDTH-1:0] o_usr_hour, // hours (0-23)
+    output reg [`DATA_WIDTH-1:0] o_usr_minutes, // minutes (0-59)
+    output reg [`DATA_WIDTH-1:0] o_usr_seconds, // seconds (0-59)
+    output reg [`DATA_WIDTH-1:0] o_width_high_3, // microsecond width of the pulse
+    output reg [`DATA_WIDTH-1:0] o_width_high_2, // microsecond width of the pulse
+    output reg [`DATA_WIDTH-1:0] o_width_high_1, // microsecond width of the pulse
+    output reg [`DATA_WIDTH-1:0] o_width_high_0, // microsecond width of the pulse
+    output reg [`DATA_WIDTH-1:0] o_width_period_3, //period of pulse
+    output reg [`DATA_WIDTH-1:0] o_width_period_2, //period of pulse
+    output reg [`DATA_WIDTH-1:0] o_width_period_1, //period of pulse
+    output reg [`DATA_WIDTH-1:0] o_width_period_0 //period of pulse
 );
 	// ---------------------------------------------------
 	// memory logic

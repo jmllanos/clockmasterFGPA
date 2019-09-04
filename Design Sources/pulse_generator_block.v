@@ -5,62 +5,63 @@ author: Victor Vasquez
 description:
 
 **********************************************************************/
+`include "address_map.vh"
 
 module pulse_generator_block #(
-    parameter PULSE_ENA      = 'h10,
-    parameter USR_YEAR_H     = 'h11,
-    parameter USR_YEAR_L     = 'h12,
-    parameter USR_MONTH      = 'h13,
-    parameter USR_DAY        = 'h14,
-    parameter USR_HOUR       = 'h15,
-    parameter USR_MINUTES    = 'h16,
-    parameter USR_SECONDS    = 'h17,
-    parameter WIDTH_HIGH_3   = 'h18,
-    parameter WIDTH_HIGH_2   = 'h19,
-    parameter WIDTH_HIGH_1   = 'h1A,
-    parameter WIDTH_HIGH_0   = 'h1B,
-    parameter WIDTH_PERIOD_3 = 'h1C,
-    parameter WIDTH_PERIOD_2 = 'h1D,
-    parameter WIDTH_PERIOD_1 = 'h1E,
-    parameter WIDTH_PERIOD_0 = 'h1F
+    parameter PULSE_ENA      = `PG0_PULSE_ENA,
+    parameter USR_YEAR_H     = `PG0_USR_YEAR_H,
+    parameter USR_YEAR_L     = `PG0_USR_YEAR_L,
+    parameter USR_MONTH      = `PG0_USR_MONTH,
+    parameter USR_DAY        = `PG0_USR_DAY,
+    parameter USR_HOUR       = `PG0_USR_HOUR,
+    parameter USR_MINUTES    = `PG0_USR_MINUTES,
+    parameter USR_SECONDS    = `PG0_USR_SECONDS,
+    parameter WIDTH_HIGH_3   = `PG0_WIDTH_HIGH_3,
+    parameter WIDTH_HIGH_2   = `PG0_WIDTH_HIGH_2,
+    parameter WIDTH_HIGH_1   = `PG0_WIDTH_HIGH_1,
+    parameter WIDTH_HIGH_0   = `PG0_WIDTH_HIGH_0,
+    parameter WIDTH_PERIOD_3 = `PG0_WIDTH_PERIOD_3,
+    parameter WIDTH_PERIOD_2 = `PG0_WIDTH_PERIOD_2,
+    parameter WIDTH_PERIOD_1 = `PG0_WIDTH_PERIOD_1,
+    parameter WIDTH_PERIOD_0 = `PG0_WIDTH_PERIOD_0
     )(
     input i_clk,
     input i_rst,
     // memory
     input	i_wr,
-    input	[6:0] i_addr,
-    input	[7:0] i_data,
-    output  [7:0] o_data,
+    input	[`ADDR_WIDTH-1:0] i_addr,
+    input	[`DATA_WIDTH-1:0] i_data,
+    output  [`DATA_WIDTH-1:0] o_data,
     // pps input
     input i_pps_raw,
     // thunderbolt time of day
     input i_thunder_packet_dv,
-    input [15:0] i_thunder_year,
-    input [7:0] i_thunder_month,
-    input [7:0] i_thunder_day,
-    input [7:0] i_thunder_hour,
-    input [7:0] i_thunder_minutes,
-    input [7:0] i_thunder_seconds,
+    input [`DATA_WIDTH*2-1:0] i_thunder_year,
+    input [`DATA_WIDTH-1:0] i_thunder_month,
+    input [`DATA_WIDTH-1:0] i_thunder_day,
+    input [`DATA_WIDTH-1:0] i_thunder_hour,
+    input [`DATA_WIDTH-1:0] i_thunder_minutes,
+    input [`DATA_WIDTH-1:0] i_thunder_seconds,
     // pulse
     output o_pulse_out
 );
 
-    wire[7:0] w_pulse_enable;
-    wire[7:0] w_usr_year_h;
-    wire[7:0] w_usr_year_l;
-    wire[7:0] w_usr_month;
-    wire[7:0] w_usr_day;
-    wire[7:0] w_usr_hour;
-    wire[7:0] w_usr_minutes;
-    wire[7:0] w_usr_seconds;
-    wire[7:0] w_width_high_3;
-    wire[7:0] w_width_high_2;
-    wire[7:0] w_width_high_1;
-    wire[7:0] w_width_high_0;
-    wire[7:0] w_width_period_3;
-    wire[7:0] w_width_period_2;
-    wire[7:0] w_width_period_1;
-    wire[7:0] w_width_period_0;
+    wire[`DATA_WIDTH-1:0] w_pulse_enable;
+    wire[`DATA_WIDTH-1:0] w_usr_year_h;
+    wire[`DATA_WIDTH-1:0] w_usr_year_l;
+    wire[`DATA_WIDTH-1:0] w_usr_month;
+    wire[`DATA_WIDTH-1:0] w_usr_day;
+    wire[`DATA_WIDTH-1:0] w_usr_hour;
+    wire[`DATA_WIDTH-1:0] w_usr_minutes;
+    wire[`DATA_WIDTH-1:0] w_usr_seconds;
+    wire[`DATA_WIDTH-1:0] w_width_high_3;
+    wire[`DATA_WIDTH-1:0] w_width_high_2;
+    wire[`DATA_WIDTH-1:0] w_width_high_1;
+    wire[`DATA_WIDTH-1:0] w_width_high_0;
+    wire[`DATA_WIDTH-1:0] w_width_period_3;
+    wire[`DATA_WIDTH-1:0] w_width_period_2;
+    wire[`DATA_WIDTH-1:0] w_width_period_1;
+    wire[`DATA_WIDTH-1:0] w_width_period_0;
 
     pulse_generator #(
         .CLKS_PER_1_US          (10))
