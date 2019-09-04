@@ -115,8 +115,8 @@ module spi_controller(
     //address decodification logic
     always@(posedge i_clk)
      if(i_rst==1'b1)begin
-        o_addr_bus=8'hFF;
-        r_wr_enable=1'b0;
+        o_addr_bus<=8'h00;
+        r_wr_enable<=1'b0;
      end
      else if((i_spi_ready==1'b1) && (present_state==WAIT_ADDR)) begin
         o_addr_bus<={1'b0,i_spi_data_rx[`DATA_WIDTH-2:0]};
