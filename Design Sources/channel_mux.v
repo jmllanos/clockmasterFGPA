@@ -35,11 +35,14 @@ module channel_mux(
       o_channel<=1'b0;  
    end
    else begin
-        if(i_enable==1)begin
+        if(i_enable==1'b1)begin
             case (i_selector)
                     1'b0: o_channel<=i_pps_divided;
                     1'b1: o_channel<=i_pulse_generated;
             endcase
+         end
+         else begin
+            o_channel<=1'b0;
          end 
     end
    end 
