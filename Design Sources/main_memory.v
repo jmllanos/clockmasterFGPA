@@ -32,11 +32,11 @@ module main_memory( input i_clk,
                     output [3:0]o_ch_sel
     );
     
-    wire [7:0] w_channel_ena;
-    wire [7:0] w_channel_sel;
+    wire [`DATA_WIDTH-1:0] w_channel_ena;
+    wire [`DATA_WIDTH-1:0] w_channel_sel;
 
-    reg [7:0] r_channel_ena;
-    reg [7:0] r_channel_sel;
+    reg [`DATA_WIDTH-1:0] r_channel_ena;
+    reg [`DATA_WIDTH-1:0] r_channel_sel;
     
     always@(posedge i_clk)
     begin
