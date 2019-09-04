@@ -45,9 +45,9 @@ module top (
                 output o_ch_3
 	);
 
-   wire [7:0] w_data_read;
-   wire [7:0] w_data_write;
-   wire [7:0] w_addr;
+   wire [`DATA_WIDTH-1:0] w_data_read;
+   wire [`DATA_WIDTH-1:0] w_data_write;
+   wire [`ADDR_WIDTH-1:0] w_addr;
    wire w_wr;
         
    spi_block spi (  
@@ -66,15 +66,15 @@ module top (
    );
 
 //THUNDERBOLT COMPONENT//////////////////////////////////////////////////////
-    wire [7:0]	w_thunder_data_read;
+    wire [`DATA_WIDTH-1:0]	w_thunder_data_read;
 	wire w_thunder_packet_dv;
-    wire [7:0]	w_thunder_year_h;
-	wire [7:0]	w_thunder_year_l;
-	wire [7:0]	w_thunder_month;
-	wire [7:0]	w_thunder_day;
-	wire [7:0]	w_thunder_hour;
-	wire [7:0]	w_thunder_minutes;
-    wire [7:0]	w_thunder_seconds;
+    wire [`DATA_WIDTH-1:0]	w_thunder_year_h;
+	wire [`DATA_WIDTH-1:0]	w_thunder_year_l;
+	wire [`DATA_WIDTH-1:0]	w_thunder_month;
+	wire [`DATA_WIDTH-1:0]	w_thunder_day;
+	wire [`DATA_WIDTH-1:0]	w_thunder_hour;
+	wire [`DATA_WIDTH-1:0]	w_thunder_minutes;
+    wire [`DATA_WIDTH-1:0]	w_thunder_seconds;
 
 	thunderbolt_block thunderbolt(
         .i_clk                  (i_clk_10),
@@ -97,7 +97,7 @@ module top (
 ////////////////////////////////////////////////////////////////////////////
 /// PPPS_DIVIDER_0
 ////////////////////////////////////////////////////////////////////////////
-    wire [7:0] w_pps_0_data_read;
+    wire [`DATA_WIDTH-1:0] w_pps_0_data_read;
     wire w_pps_divided_0;
             
     pps_div_block #(
@@ -123,7 +123,7 @@ module top (
 ////////////////////////////////////////////////////////////////////////////
 /// PPPS_DIVIDER_1
 ////////////////////////////////////////////////////////////////////////////    
-    wire [7:0] w_pps_1_data_read;
+    wire [`DATA_WIDTH-1:0] w_pps_1_data_read;
     wire w_pps_divided_1;                  
     
     pps_div_block #(
@@ -149,7 +149,7 @@ module top (
 ////////////////////////////////////////////////////////////////////////////
 /// PPPS_DIVIDER_2
 ////////////////////////////////////////////////////////////////////////////    
-    wire [7:0] w_pps_2_data_read;
+    wire [`DATA_WIDTH-1:0] w_pps_2_data_read;
     wire w_pps_divided_2;                  
     
     pps_div_block #(
@@ -175,7 +175,7 @@ module top (
 ////////////////////////////////////////////////////////////////////////////
 /// PPPS_DIVIDER_3
 ////////////////////////////////////////////////////////////////////////////    
-    wire [7:0] w_pps_3_data_read;
+    wire [`DATA_WIDTH-1:0] w_pps_3_data_read;
     wire w_pps_divided_3;
                                       
     pps_div_block #(
@@ -201,7 +201,7 @@ module top (
 ////////////////////////////////////////////////////////////////////////////
 /// MAIN_MEMORY
 ////////////////////////////////////////////////////////////////////////////                      
-    wire [7:0] w_main_memory_data;  
+    wire [`DATA_WIDTH-1:0] w_main_memory_data;  
     wire [3:0] w_ch_ena;
     wire [3:0] w_ch_sel;            
                    
@@ -217,7 +217,7 @@ module top (
     );
  
 //PULSE GENERATOR 0//////////////////////////////////////////////////////////
-	wire w_pg_0_data_read;
+	wire [`DATA_WIDTH-1:0] w_pg_0_data_read;
     wire w_pulse_out_0;
 
     pulse_generator_block #(
@@ -257,7 +257,7 @@ module top (
 ////////////////////////////////////////////////////////////////////////////
 
 //PULSE GENERATOR 1//////////////////////////////////////////////////////////
-	wire w_pg_1_data_read;
+	wire [`DATA_WIDTH-1:0]w_pg_1_data_read;
     wire w_pulse_out_1;
 
     pulse_generator_block #(
@@ -297,7 +297,7 @@ module top (
 ////////////////////////////////////////////////////////////////////////////
 
 //PULSE GENERATOR 2//////////////////////////////////////////////////////////
-	wire w_pg_2_data_read;
+	wire [`DATA_WIDTH-1:0]w_pg_2_data_read;
     wire w_pulse_out_2;
 
     pulse_generator_block #(
@@ -337,7 +337,7 @@ module top (
 ////////////////////////////////////////////////////////////////////////////
 
 //PULSE GENERATOR 3//////////////////////////////////////////////////////////
-	wire w_pg_3_data_read;
+	wire [`DATA_WIDTH-1:0] w_pg_3_data_read;
     wire w_pulse_out_3;
 
     pulse_generator_block #(
