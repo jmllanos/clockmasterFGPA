@@ -30,24 +30,24 @@ module pulse_generator_registers #(
     input	i_wr,
     input	[6:0] i_addr,
     input	[7:0] i_data,
-    output reg [7:0] o_data = 8'h00,
+    output reg [7:0] o_data,
     // address
-    output reg [7:0] o_pulse_enable = 8'h00,
-    output reg [7:0] o_usr_year_h = 8'h00, // four digits of year
-    output reg [7:0] o_usr_year_l = 8'h00, // four digits of year
-    output reg [7:0] o_usr_month = 8'h00, // month of the year (0-12)
-    output reg [7:0] o_usr_day = 8'h00, // day of month (1-31)
-    output reg [7:0] o_usr_hour = 8'h00, // hours (0-23)
-    output reg [7:0] o_usr_minutes = 8'h00, // minutes (0-59)
-    output reg [7:0] o_usr_seconds = 8'h00, // seconds (0-59)
-    output reg [7:0] o_width_high_3 = 8'h00, // microsecond width of the pulse
-    output reg [7:0] o_width_high_2 = 8'h00, // microsecond width of the pulse
-    output reg [7:0] o_width_high_1 = 8'h00, // microsecond width of the pulse
-    output reg [7:0] o_width_high_0 = 8'h00, // microsecond width of the pulse
-    output reg [7:0] o_width_period_3 = 8'h00, //period of pulse
-    output reg [7:0] o_width_period_2 = 8'h00, //period of pulse
-    output reg [7:0] o_width_period_1 = 8'h00, //period of pulse
-    output reg [7:0] o_width_period_0 = 8'h00 //period of pulse
+    output reg [7:0] o_pulse_enable,
+    output reg [7:0] o_usr_year_h, // four digits of year
+    output reg [7:0] o_usr_year_l, // four digits of year
+    output reg [7:0] o_usr_month, // month of the year (0-12)
+    output reg [7:0] o_usr_day, // day of month (1-31)
+    output reg [7:0] o_usr_hour, // hours (0-23)
+    output reg [7:0] o_usr_minutes, // minutes (0-59)
+    output reg [7:0] o_usr_seconds, // seconds (0-59)
+    output reg [7:0] o_width_high_3, // microsecond width of the pulse
+    output reg [7:0] o_width_high_2, // microsecond width of the pulse
+    output reg [7:0] o_width_high_1, // microsecond width of the pulse
+    output reg [7:0] o_width_high_0, // microsecond width of the pulse
+    output reg [7:0] o_width_period_3, //period of pulse
+    output reg [7:0] o_width_period_2, //period of pulse
+    output reg [7:0] o_width_period_1, //period of pulse
+    output reg [7:0] o_width_period_0 //period of pulse
 );
 	// ---------------------------------------------------
 	// memory logic

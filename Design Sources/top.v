@@ -153,7 +153,7 @@ module top (
     wire w_pps_divided_2;                  
     
     pps_div_block #(
-        .PER_TRUE_ADDR (`PPS_DIV_1_PER_TRUE),
+        .PER_TRUE_ADDR (`PPS_DIV_2_PER_TRUE),
         .DIV_NUM_ADDR  (`PPS_DIV_2_DIV_NUM),
         .PHASE_0_ADDR  (`PPS_DIV_2_PHASE_0),
         .PHASE_1_ADDR  (`PPS_DIV_2_PHASE_1),

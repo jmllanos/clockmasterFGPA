@@ -68,44 +68,44 @@ module pps_div_registers #(parameter PER_TRUE_ADDR   =`PPS_DIV_0_PER_TRUE,
    always @(posedge i_clk_10)
     begin
      if(i_rst==1'b1) begin
-       o_periodic_true='h0;
-       o_div_number   ='h0;
-       phase_us_0     ='h0;
-       phase_us_1     ='h0;
-       phase_us_2     ='h0;
-       phase_us_3     ='h0;
-       o_width_us     ='h0;
-       o_start        ='h0;
-       o_stop         ='h0;
+       o_periodic_true  <='h0;
+       o_div_number     <='h0;
+       phase_us_0       <='h0;
+       phase_us_1       <='h0;
+       phase_us_2       <='h0;
+       phase_us_3       <='h0;
+       o_width_us       <='h0;
+       o_start          <='h0;
+       o_stop           <='h0;
      end
      else begin
 
          //writing process
          if(i_wr==1)begin
            case (i_addr)
-                PER_TRUE_ADDR: o_periodic_true=i_data;
-                DIV_NUM_ADDR : o_div_number   =i_data;
-                PHASE_0_ADDR : phase_us_0     =i_data;
-                PHASE_1_ADDR : phase_us_1     =i_data;
-                PHASE_2_ADDR : phase_us_2     =i_data;
-                PHASE_3_ADDR : phase_us_3     =i_data;
-                WIDTH_ADDR   : o_width_us     =i_data;
-                START_ADDR   : o_start        =i_data;
-                STOP_ADDR    : o_stop         =i_data;
+                PER_TRUE_ADDR: o_periodic_true<=i_data;
+                DIV_NUM_ADDR : o_div_number   <=i_data;
+                PHASE_0_ADDR : phase_us_0     <=i_data;
+                PHASE_1_ADDR : phase_us_1     <=i_data;
+                PHASE_2_ADDR : phase_us_2     <=i_data;
+                PHASE_3_ADDR : phase_us_3     <=i_data;
+                WIDTH_ADDR   : o_width_us     <=i_data;
+                START_ADDR   : o_start        <=i_data;
+                STOP_ADDR    : o_stop         <=i_data;
            endcase
           end
           else begin
           // Reading process
             case (i_addr)
-                PER_TRUE_ADDR: o_data=o_periodic_true;
-                DIV_NUM_ADDR : o_data=o_div_number;
-                PHASE_0_ADDR : o_data=phase_us_0;
-                PHASE_1_ADDR : o_data=phase_us_1;
-                PHASE_2_ADDR : o_data=phase_us_2;
-                PHASE_3_ADDR : o_data=phase_us_3;
-                WIDTH_ADDR   : o_data=o_width_us;
-                START_ADDR   : o_data=o_start;
-                STOP_ADDR    : o_data=o_stop;
+                PER_TRUE_ADDR: o_data<=o_periodic_true;
+                DIV_NUM_ADDR : o_data<=o_div_number;
+                PHASE_0_ADDR : o_data<=phase_us_0;
+                PHASE_1_ADDR : o_data<=phase_us_1;
+                PHASE_2_ADDR : o_data<=phase_us_2;
+                PHASE_3_ADDR : o_data<=phase_us_3;
+                WIDTH_ADDR   : o_data<=o_width_us;
+                START_ADDR   : o_data<=o_start;
+                STOP_ADDR    : o_data<=o_stop;
            endcase
           end
       o_phase_us={phase_us_3,phase_us_2,phase_us_1,phase_us_0};
