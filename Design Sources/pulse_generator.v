@@ -29,8 +29,8 @@ module pulse_generator #(parameter CLKS_PER_1_US = 10)(
     input [7:0] i_usr_hour, // hours (0-23)
     input [7:0] i_usr_minutes, // minutes (0-59)
     input [7:0] i_usr_seconds, // seconds (0-59)
-    input [31:0] i_width_high, // microsecond width of the pulse
-    input [31:0] i_width_period, //period of pulse
+    input [23:0] i_width_high, // microsecond width of the pulse
+    input [23:0] i_width_period, //period of pulse
     // thunderbolt time of day
     input i_thunder_packet_dv, // thunderbolt data valid flag
     input [15:0] i_thunder_year,
@@ -71,8 +71,8 @@ module pulse_generator #(parameter CLKS_PER_1_US = 10)(
 		s_COUNT_MICRO = 4'd7,
 		s_GET_READY_COUNTER = 4'd8;
 	// counter logic
-    reg [31:0] r_clk_counter = 0;
-    reg [31:0] r_micro_counter = 0;
+    reg [23:0] r_clk_counter = 0;
+    reg [23:0] r_micro_counter = 0;
 
 	// flag to make sure multiple pulses don't happen before the next thunderbolt packet is received
 	reg r_pulse_valid_flag;

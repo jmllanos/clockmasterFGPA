@@ -16,11 +16,9 @@ module pulse_generator_block #(
     parameter USR_HOUR       = `PG0_USR_HOUR,
     parameter USR_MINUTES    = `PG0_USR_MINUTES,
     parameter USR_SECONDS    = `PG0_USR_SECONDS,
-    parameter WIDTH_HIGH_3   = `PG0_WIDTH_HIGH_3,
     parameter WIDTH_HIGH_2   = `PG0_WIDTH_HIGH_2,
     parameter WIDTH_HIGH_1   = `PG0_WIDTH_HIGH_1,
     parameter WIDTH_HIGH_0   = `PG0_WIDTH_HIGH_0,
-    parameter WIDTH_PERIOD_3 = `PG0_WIDTH_PERIOD_3,
     parameter WIDTH_PERIOD_2 = `PG0_WIDTH_PERIOD_2,
     parameter WIDTH_PERIOD_1 = `PG0_WIDTH_PERIOD_1,
     parameter WIDTH_PERIOD_0 = `PG0_WIDTH_PERIOD_0
@@ -54,11 +52,9 @@ module pulse_generator_block #(
     wire[`DATA_WIDTH-1:0] w_usr_hour;
     wire[`DATA_WIDTH-1:0] w_usr_minutes;
     wire[`DATA_WIDTH-1:0] w_usr_seconds;
-    wire[`DATA_WIDTH-1:0] w_width_high_3;
     wire[`DATA_WIDTH-1:0] w_width_high_2;
     wire[`DATA_WIDTH-1:0] w_width_high_1;
     wire[`DATA_WIDTH-1:0] w_width_high_0;
-    wire[`DATA_WIDTH-1:0] w_width_period_3;
     wire[`DATA_WIDTH-1:0] w_width_period_2;
     wire[`DATA_WIDTH-1:0] w_width_period_1;
     wire[`DATA_WIDTH-1:0] w_width_period_0;
@@ -76,12 +72,10 @@ module pulse_generator_block #(
         .i_usr_hour             (w_usr_hour),
         .i_usr_minutes          (w_usr_minutes),
         .i_usr_seconds          (w_usr_seconds),
-        .i_width_high           ({w_width_high_3,
-                                  w_width_high_2,
+        .i_width_high           ({w_width_high_2,
                                   w_width_high_1,
                                   w_width_high_0}),
-        .i_width_period         ({w_width_period_3,
-                                  w_width_period_2,
+        .i_width_period         ({w_width_period_2,
                                   w_width_period_1,
                                   w_width_period_0}),
         .i_thunder_packet_dv    (i_thunder_packet_dv),
@@ -103,11 +97,9 @@ module pulse_generator_block #(
         .USR_HOUR           (USR_HOUR),
         .USR_MINUTES        (USR_MINUTES),
         .USR_SECONDS        (USR_SECONDS),
-        .WIDTH_HIGH_3       (WIDTH_HIGH_3),
         .WIDTH_HIGH_2       (WIDTH_HIGH_2),
         .WIDTH_HIGH_1       (WIDTH_HIGH_1),
         .WIDTH_HIGH_0       (WIDTH_HIGH_0),
-        .WIDTH_PERIOD_3     (WIDTH_PERIOD_3),
         .WIDTH_PERIOD_2     (WIDTH_PERIOD_2),
         .WIDTH_PERIOD_1     (WIDTH_PERIOD_1),
         .WIDTH_PERIOD_0     (WIDTH_PERIOD_0))
@@ -126,11 +118,9 @@ module pulse_generator_block #(
         .o_usr_hour         (w_usr_hour),
         .o_usr_minutes      (w_usr_minutes),
         .o_usr_seconds      (w_usr_seconds),
-        .o_width_high_3     (w_width_high_3),
         .o_width_high_2     (w_width_high_2),
         .o_width_high_1     (w_width_high_1),
         .o_width_high_0     (w_width_high_0),
-        .o_width_period_3   (w_width_period_3),
         .o_width_period_2   (w_width_period_2),
         .o_width_period_1   (w_width_period_1),
         .o_width_period_0   (w_width_period_0) 
