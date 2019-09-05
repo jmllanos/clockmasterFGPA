@@ -1,276 +1,302 @@
-// timescale 
-`timescale 1ns/1ps
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 09/03/2019 05:21:16 PM
+// Design Name: 
+// Module Name: tb_top
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
 
-// `includes for design modules
-`include "top.v"
+`include"address_map.vh"
 
-module tb_top(); 
+module tb_top();
 
-	//--------------------------------
-	// Test clock 
-	//--------------------------------
-	
-	default_clk_gen #(.CLK_PERIOD_NS(1000)) tb_clk (.o_clk(tb_clk_10)); // 10 MHz clock
-	
-	//--------------------------------
-	// DUT instantiation 
-	//--------------------------------
-	
-	// inputs 
-	reg rst; 
-	wire sclk;
-	default_clk_gen #(.CLK_PERIOD_NS(10000)) tb_sclk (.o_clk(sclk)); // 1 MHZ spi clock  
-	reg ssel; 
-	reg mosi;
-	reg usr_rx; 
-	reg thunder_rx; 
-	wire pps_raw; 
-	default_clk_gen #(.CLK_PERIOD_NS(50000000)) tb_pps (.o_clk(pps_raw)); // 1 HZ pps signal (using 5 kHz for testing)
-	//outputs 
-	wire miso; 
-	wire led;
-	wire usr_tx; 
-	wire thunder_tx;  
-	wire pulse_generated; 
-	
-	top DUT (.i_clk_10(tb_clk_10), 
-		     .i_rst(rst), 
-			 // SPI
-			 .i_sclk(sclk),
-			 .i_ssel(ssel), 
-			 .i_mosi(mosi), 
-			 .o_miso(miso), 
-			 // UART
-			 .i_usr_rx(usr_rx), 
-			 .o_usr_tx(usr_tx),
-			 // thunderbolt uart 
-			 .i_thunder_rx(thunder_rx), 
-			 .o_thunder_tx(thunder_tx),
-			 // pps divider 
-			 .i_pps_raw(pps_raw), 
-			 .o_pps_divided_1(pps_divided),
-			 // pulse generator 
-			 .o_pulse_generated(pulse_generated)
-			);
-			
-	// for UART packet input from thunderbolt 
-	reg [7:0] thunder_seconds;
-	reg [7:0] thunder_minutes; 
-	reg [7:0] thunder_hour;
-	reg [7:0] thunder_day;
-	reg [7:0] thunder_month;
-	reg [7:0] thunder_year0;
-	reg [7:0] thunder_year1;
-			
-	//--------------------------------
-	// waveform file generation 
-	//--------------------------------
-	initial
-	begin
-		$dumpfile ("wave_tb_top.vcd");
-		$dumpvars;
-	end
-	
-	//--------------------------------
-	// Directed stimulus generation
-	//--------------------------------
-	
-	// TODO 32 bit phase stuff is off 
-  
-	initial begin
+wire clk;
+reg rst;
+
+//SPI
+wire SCLK;
+reg SSEL;
+reg MOSI;
+wire MISO;
+
+//trimble 
+reg pps_raw;
+reg  thunder_rx;
+wire thunder_tx;
+
+//channel_OUTPUTS
+wire ch_0;
+wire ch_1;
+wire ch_2;
+wire ch_3;
+
+
+reg [7:0] thunder_seconds;
+reg [7:0] thunder_minutes;
+reg [7:0] thunder_hour;
+reg [7:0] thunder_day;
+reg [7:0] thunder_month;
+reg [7:0] thunder_year0;
+reg [7:0] thunder_year1;
+
+top DUT( 
+        .i_clk_10(clk),
+        .i_rst(rst),
+        .i_pps_raw(pps_raw),
+         // SPI
+        .i_MOSI(MOSI),
+        .i_SCLK(SCLK),
+        .i_SSEL(SSEL),
+        .o_MISO(MISO),
+        // UART
+        .i_rx(thunder_rx),
+        .o_tx(thunder_tx),
+        // Channel OUTPUTS
+        .o_ch_0(ch_0),
+        .o_ch_1(ch_1),
+        .o_ch_2(ch_2),
+        .o_ch_3(ch_3)
+);
+
+default_clk_gen #(.CLK_PERIOD_NS(100)) tb_clk (.o_clk(clk)); // 10 MHz clock
+
+default_clk_gen #(.CLK_PERIOD_NS(10000)) tb_sclk (.o_clk(SCLK)); // 1 MHZ
+
+//default_clk_gen #(.CLK_PERIOD_NS(50000000)) tb_pps (.o_clk(pps_raw)); // 1
+
+initial begin
+        pps_raw   <= 0;
+        #13333;
+        forever begin
+            pps_raw  <= 1;
+            #600
+            pps_raw   <= 0;
+            #24999800;
+        end
+    end
+
+initial begin
 		// initialization
 		rst <= 1; 
-		ssel <= 0;
-		#1000000
+		SSEL <= 0;
+		thunder_rx<=1;
+		#1000
 		rst <= 0; 
-		ssel <= 1;
-		mosi <= 0;  
+		SSEL <= 1;
+		MOSI <= 0;
+		#1000
+		
+		
 		// start of test cases
+		// Configuration_PPS0
+		write_data(`PPS_DIV_0_START,   'd1);
+		write_data(`PPS_DIV_0_STOP,    'd1);
+		write_data(`PPS_DIV_0_PER_TRUE,'h1);
+		write_data(`PPS_DIV_0_DIV_NUM, 'h1);
+		write_data(`PPS_DIV_0_PHASE_0, 'h0);
+		write_data(`PPS_DIV_0_PHASE_1, 'h0);
+		write_data(`PPS_DIV_0_PHASE_2, 'h0);
+		write_data(`PPS_DIV_0_PHASE_3, 'h0);
+		write_data(`PPS_DIV_0_WIDTH,   'd20);
+		write_data(`PPS_DIV_0_STOP,    'd0);
 		
-		#10000000 // make sure to wait enough time for the thunderbolt module to send two uart packets 
+		// Configuration_PPS1
+		write_data(`PPS_DIV_1_START,   'd1);
+		write_data(`PPS_DIV_1_STOP,    'd1);
+		write_data(`PPS_DIV_1_PER_TRUE,'h1);
+		write_data(`PPS_DIV_1_DIV_NUM, 'h2);
+		write_data(`PPS_DIV_1_PHASE_0, 'h0);
+		write_data(`PPS_DIV_1_PHASE_1, 'h0);
+		write_data(`PPS_DIV_1_PHASE_2, 'h0);
+		write_data(`PPS_DIV_1_PHASE_3, 'h0);
+		write_data(`PPS_DIV_1_WIDTH,   'd40);
+		write_data(`PPS_DIV_1_STOP,    'd0);
 		
-		// configure the regFile with pps settings 
-		send_spi_packet(8'd0, 8'd1); // per true 
-		send_spi_packet(8'd1, 8'd3); // div num
-		send_spi_packet(8'd2, 8'd0); // phase 
-		send_spi_packet(8'd3, 8'd0); 
-		send_spi_packet(8'd4, 8'd0); 
-		send_spi_packet(8'd5, 8'd2); 
-		send_spi_packet(8'd6, 8'd4); // width 
-		send_spi_packet(8'd7, 8'd1); // start 
-		send_spi_packet(8'd8, 8'd1); // stop
-		send_spi_packet(8'd8, 8'd0); // stop
+		// Configuration_PPS2
+		write_data(`PPS_DIV_2_START,   'd1);
+		write_data(`PPS_DIV_2_STOP,    'd1);
+		write_data(`PPS_DIV_2_PER_TRUE,'h1);
+		write_data(`PPS_DIV_2_DIV_NUM, 'h4);
+		write_data(`PPS_DIV_2_PHASE_0, 'h0);
+		write_data(`PPS_DIV_2_PHASE_1, 'h0);
+		write_data(`PPS_DIV_2_PHASE_2, 'h0);
+		write_data(`PPS_DIV_2_PHASE_3, 'h0);
+		write_data(`PPS_DIV_2_WIDTH,   'd80);
+		write_data(`PPS_DIV_2_STOP,    'd0);
 		
-		// configure the regFile with pulse generation settings 
-		send_spi_packet(8'd9, 8'd20); // year 
-		send_spi_packet(8'd10, 8'd20); // year lsb
-		send_spi_packet(8'd11, 8'd2); // month 
-		send_spi_packet(8'd12, 8'd25); // day 
-		send_spi_packet(8'd13, 8'd10); // hour 
-		send_spi_packet(8'd14, 8'd10); // minutes 
-		send_spi_packet(8'd15, 8'd10); // seconds 
-		send_spi_packet(8'd16, 8'd0); // width // 16 in dec is 10 in hex be careful 
-		send_spi_packet(8'd17, 8'd0); // width 
-		send_spi_packet(8'd18, 8'd99); // width 
-		send_spi_packet(8'd19, 8'd99); // width lsb
-		send_spi_packet(8'd20, 8'd1); // pulse enable
+		// Configuration_PPS3
+	    write_data(`PPS_DIV_3_START,   'd1);
+		write_data(`PPS_DIV_3_STOP,    'd1);
+		write_data(`PPS_DIV_3_PER_TRUE,'h1);
+		write_data(`PPS_DIV_3_DIV_NUM, 'h8);
+		write_data(`PPS_DIV_3_PHASE_0, 'h0);
+		write_data(`PPS_DIV_3_PHASE_1, 'h0);
+		write_data(`PPS_DIV_3_PHASE_2, 'h0);
+		write_data(`PPS_DIV_3_PHASE_3, 'h0);
+		write_data(`PPS_DIV_3_WIDTH,   'd160);
+		write_data(`PPS_DIV_3_STOP,    'd0);
+	   
+	   //Pulse generator 0 configuration	
+		write_data(`PG0_PULSE_ENA,     'h01);
+		write_data(`PG0_USR_YEAR_H,    'he4);
+		write_data(`PG0_USR_YEAR_L,    'h07);
+		write_data(`PG0_USR_MONTH,     'd07);
+		write_data(`PG0_USR_DAY,       'd15);
+		write_data(`PG0_USR_HOUR,      'd11);
+		write_data(`PG0_USR_MINUTES,   'd55);
+		write_data(`PG0_USR_SECONDS,   'd29);
+		write_data(`PG0_WIDTH_HIGH_3,  'd00);
+		write_data(`PG0_WIDTH_HIGH_2,  'd00);
+		write_data(`PG0_WIDTH_HIGH_1,  'd00);
+		write_data(`PG0_WIDTH_HIGH_0,  'd02);
+		write_data(`PG0_WIDTH_PERIOD_3,'d00);
+		write_data(`PG0_WIDTH_PERIOD_2,'d00);
+		write_data(`PG0_WIDTH_PERIOD_1,'d00);
+		write_data(`PG0_WIDTH_PERIOD_0,'d08);
+			
+		// Channel Mux configuration
+		// Enable
+		write_data(`CH_MUX_SELECTOR,   'b0001);
+		write_data(`CH_MUX_ENABLE,     'b1111);
+		// Selector
 		
-		// send a packet from the thunderbolt without matching configuration 
-		thunder_seconds <= 8'd0; 
-		thunder_minutes <= 8'd0; 
-		thunder_hour <= 8'd0; 
-		thunder_day <= 8'd0; 
-		thunder_month <= 8'd0; 
-		thunder_year0 <= 8'd0; 
-		thunder_year1 <= 8'd0; // 16 in dec is 10 in hex be careful 
+		
+		thunder_seconds <= 8'd27; 
+		thunder_minutes <= 8'd55; 
+		thunder_hour    <= 8'd11; 
+		thunder_day     <= 8'd15; 
+		thunder_month   <= 8'd07; 
+		thunder_year0   <= 8'he4; 
+		thunder_year1   <= 8'h07; // 16 in dec is 10 in hex be careful 
 		@(negedge pps_raw);
 		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year0, thunder_year1);
 		
-		// send a packet from the thunderbolt without matching configuration 
-		thunder_seconds <= 8'd1; 
-		thunder_minutes <= 8'd1; 
-		thunder_hour <= 8'd1; 
-		thunder_day <= 8'd1; 
-		thunder_month <= 8'd1; 
-		thunder_year0 <= 8'd1; 
-		thunder_year1 <= 8'd1; // 16 in dec is 10 in hex be careful 
+		thunder_seconds <= 8'd28; 
+		thunder_minutes <= 8'd55; 
+		thunder_hour    <= 8'd11; 
+		thunder_day     <= 8'd15; 
+		thunder_month   <= 8'd07; 
+		thunder_year0   <= 8'he4; 
+		thunder_year1   <= 8'h07; // 16 in dec is 10 in hex be careful 
 		@(negedge pps_raw);
 		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year0, thunder_year1);
 		
-		// send a packet from the thunderbolt without matching configuration 
-		thunder_seconds <= 8'd2; 
-		thunder_minutes <= 8'd2; 
-		thunder_hour <= 8'd2; 
-		thunder_day <= 8'd2; 
-		thunder_month <= 8'd2; 
-		thunder_year0 <= 8'd2; 
-		thunder_year1 <= 8'd2; // 16 in dec is 10 in hex be careful 
+		thunder_seconds <= 8'd29; 
+		thunder_minutes <= 8'd55; 
+		thunder_hour    <= 8'd11; 
+		thunder_day     <= 8'd15; 
+		thunder_month   <= 8'd07; 
+		thunder_year0   <= 8'he4; 
+		thunder_year1   <= 8'h07; // 16 in dec is 10 in hex be careful 
 		@(negedge pps_raw);
 		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year0, thunder_year1);
 		
-		// send a packet from the thunderbolt with matching configuration 
-		thunder_seconds <= 8'd10; 
-		thunder_minutes <= 8'd10; 
-		thunder_hour <= 8'd10; 
-		thunder_day <= 8'd25; 
-		thunder_month <= 8'd2; 
-		thunder_year0 <= 8'd20; 
-		thunder_year1 <= 8'd20; // 16 in dec is 10 in hex be careful 
-		@(negedge pps_raw); 
-		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year0, thunder_year1);
-		
-		// send a packet from the thunderbolt without matching configuration 
-		thunder_seconds <= 8'd3; 
-		thunder_minutes <= 8'd3; 
-		thunder_hour <= 8'd3; 
-		thunder_day <= 8'd3; 
-		thunder_month <= 8'd3; 
-		thunder_year0 <= 8'd3; 
-		thunder_year1 <= 8'd3; // 16 in dec is 10 in hex be careful 
+		thunder_seconds <= 8'd30; 
+		thunder_minutes <= 8'd55; 
+		thunder_hour    <= 8'd11; 
+		thunder_day     <= 8'd15; 
+		thunder_month   <= 8'd07; 
+		thunder_year0   <= 8'he4; 
+		thunder_year1   <= 8'h07; // 16 in dec is 10 in hex be careful 
 		@(negedge pps_raw);
 		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year0, thunder_year1);
 		
-		#3000000
-		// backchannel uart 
-		send_uart_byte(8'hAB); // report the regfile data 
-		#3000000
-		#3000000
-		send_uart_byte(8'hAC); // report the thunderbolt data 
-		#30000000
-		send_uart_byte(8'hEE); // report ee 
-		#30000000
+		thunder_seconds <= 8'd31; 
+		thunder_minutes <= 8'd55; 
+		thunder_hour    <= 8'd11; 
+		thunder_day     <= 8'd15; 
+		thunder_month   <= 8'd07; 
+		thunder_year0   <= 8'he4; 
+		thunder_year1   <= 8'h07; // 16 in dec is 10 in hex be careful 
+		@(negedge pps_raw);
+		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year0, thunder_year1);
 		
-		// configure the regFile with pps settings 
-		send_spi_packet(8'd0, 8'd1); // per true 
-		send_spi_packet(8'd1, 8'd1); // div num
-		send_spi_packet(8'd2, 8'd0); // phase 
-		send_spi_packet(8'd3, 8'd0); 
-		send_spi_packet(8'd4, 8'd0); 
-		send_spi_packet(8'd5, 8'd200); 
-		send_spi_packet(8'd6, 8'd250); // width 
-		send_spi_packet(8'd7, 8'd1); // start 
-		send_spi_packet(8'd8, 8'd1); // stop
-		send_spi_packet(8'd8, 8'd0); // stop
-		#100000
 		
-		#300000000
+		thunder_seconds <= 8'd32; 
+		thunder_minutes <= 8'd55; 
+		thunder_hour    <= 8'd11; 
+		thunder_day     <= 8'd15; 
+		thunder_month   <= 8'd07; 
+		thunder_year0   <= 8'he4; 
+		thunder_year1   <= 8'h07; // 16 in dec is 10 in hex be careful 
+		@(negedge pps_raw);
+		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year0, thunder_year1);
+		
+		
+		
+		#1000000
+		read_data(`PPS_DIV_3_DIV_NUM, 'h8);
+//		#100
 		// exit simulation
 		$finish;  
 	end
-	
-	// task to send a byte over SPI
-	task send_spi_byte; 
-		input [7:0] spi_byte; 
+
+task write_data;
+    input [7:0] address;
+    input [7:0] data;
+    begin
+        send_byte('h80 | address);
+        send_byte(data);
+    end
+endtask
+
+task read_data;
+    input [7:0] address;
+    input [7:0] data;
+    begin
+        send_byte(address);
+        send_byte(data);
+    end
+endtask
+
+
+task send_byte; 
+		input [7:0] byte; 
 		begin 
 			// 1. The master pulls SSEL down to indicate to the slave that communication is starting (SSEL is active low)
-			@(negedge sclk);
-			ssel <= 0;
-			// 2. The master toggles the clock eight times and sends 8 data bits on the mosi line
-			mosi <= spi_byte[7];
-			@(negedge sclk);
-			mosi <= spi_byte[6]; 
-			@(negedge sclk);
-			mosi <= spi_byte[5]; 
-			@(negedge sclk);
-			mosi <= spi_byte[4]; 
-			@(negedge sclk);
-			mosi <= spi_byte[3]; 
-			@(negedge sclk);
-			mosi <= spi_byte[2]; 
-			@(negedge sclk);
-			mosi <= spi_byte[1]; 
-			@(negedge sclk);
-			mosi <= spi_byte[0];
+			@(negedge SCLK);
+			SSEL <= 0;
+			// 2. The master toggles the clock eight times and sends 8 data bits on the MOSI line
+			MOSI <= byte[7];
+			@(negedge SCLK);
+			MOSI <= byte[6]; 
+			@(negedge SCLK);
+			MOSI <= byte[5]; 
+			@(negedge SCLK);
+			MOSI <= byte[4]; 
+			@(negedge SCLK);
+			MOSI <= byte[3]; 
+			@(negedge SCLK);
+			MOSI <= byte[2]; 
+			@(negedge SCLK);
+			MOSI <= byte[1]; 
+			@(negedge SCLK);
+			MOSI <= byte[0];
 			// 3. The master pulls SSEL up to indicate that the transfer is over
-			@(negedge sclk);
-			ssel <= 1;
+			@(negedge SCLK);
+			SSEL <= 1;
 		end 
 	endtask
-	
-	task send_spi_packet; 
-		input [7:0] addr; 
-		input [7:0] data; 
-		begin
-			send_spi_byte(8'hF0); // start byte 
-			send_spi_byte(addr); // address byte
-			send_spi_byte(data); // data byte 
-		end
-	endtask 
-	
-    //parameter c_CLOCK_PERIOD_NS = 100; 1000
-    //parameter c_CLKS_PER_BIT    = 1042; 87
-    //parameter c_BIT_PERIOD      = 104200;  
-	// ------------------------------------------------------------------------------------------
-	// ------------------------------------------------------------------------------------------
-	// ---REMEMBER TO REMOVE FOR HARDWARE IN THUNDERBOLT MODULE ------------------------
-	// ------------------------------------------------------------------------------------------
-	// ------------------------------------------------------------------------------------------
+
+
 	// this is just to make the uart faster for simulation purposes 
-    parameter c_CLOCK_PERIOD_NS = 100;
+    parameter c_CLOCK_PERIOD_NS = 1000;
     parameter c_CLKS_PER_BIT    = 1042;
     parameter c_BIT_PERIOD      = 104200; 
-	// ------------------------------------------------------------------------------------------
-	// ------------------------------------------------------------------------------------------
-	// ------------------------------------------------------------------------------------------
-	// ------------------------------------------------------------------------------------------
-	task send_uart_byte; 
-		input [7:0] uart_byte; 
-		integer j; 
-		begin
-	        // Send Start Bit
-	        usr_rx <= 1'b0;
-	        #(c_BIT_PERIOD);
-			#1000
-	        // Send Data Byte
-	        for (j=0; j<8; j=j+1) begin
-				usr_rx <= uart_byte[j]; 
-				#(c_BIT_PERIOD);
-			end
-		    // Send Stop Bit
-		    usr_rx <= 1'b1;
-		    #(c_BIT_PERIOD);
-		end
-	endtask
+
 	
 	task send_thunder_byte; 
 		input [7:0] thunder_byte; 
@@ -302,6 +328,7 @@ module tb_top();
 		input [7:0] thunder_year0;
 		input [7:0] thunder_year1;
 		begin
+			send_thunder_byte(8'h10);
 			send_thunder_byte(c_TIM_ID); 
 			send_thunder_byte(c_TIM_SUBCODE);
 			send_thunder_byte(8'h00);
@@ -320,11 +347,13 @@ module tb_top();
 			send_thunder_byte(thunder_month); // month 
 			send_thunder_byte(thunder_year0); // year 
 			send_thunder_byte(thunder_year1); // year 
+			send_thunder_byte(8'h10);
+			send_thunder_byte(8'h03);
+		
 		end
 	endtask
-	
-endmodule 
 
+endmodule
 
 module default_clk_gen #(parameter CLK_PERIOD_NS = 100)
 						(output reg o_clk);
@@ -339,7 +368,3 @@ module default_clk_gen #(parameter CLK_PERIOD_NS = 100)
     end
 
 endmodule
-			
-	
-	
-	

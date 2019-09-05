@@ -106,7 +106,6 @@ module top (
         .PHASE_0_ADDR  (`PPS_DIV_0_PHASE_0),
         .PHASE_1_ADDR  (`PPS_DIV_0_PHASE_1),
         .PHASE_2_ADDR  (`PPS_DIV_0_PHASE_2),
-        .PHASE_3_ADDR  (`PPS_DIV_0_PHASE_3),
         .WIDTH_ADDR    (`PPS_DIV_0_WIDTH),
         .START_ADDR    (`PPS_DIV_0_START),
         .STOP_ADDR     (`PPS_DIV_0_STOP))
@@ -132,7 +131,6 @@ module top (
         .PHASE_0_ADDR  (`PPS_DIV_1_PHASE_0),
         .PHASE_1_ADDR  (`PPS_DIV_1_PHASE_1),
         .PHASE_2_ADDR  (`PPS_DIV_1_PHASE_2),
-        .PHASE_3_ADDR  (`PPS_DIV_1_PHASE_3),
         .WIDTH_ADDR    (`PPS_DIV_1_WIDTH),
         .START_ADDR    (`PPS_DIV_1_START),
         .STOP_ADDR     (`PPS_DIV_1_STOP))
@@ -158,7 +156,6 @@ module top (
         .PHASE_0_ADDR  (`PPS_DIV_2_PHASE_0),
         .PHASE_1_ADDR  (`PPS_DIV_2_PHASE_1),
         .PHASE_2_ADDR  (`PPS_DIV_2_PHASE_2),
-        .PHASE_3_ADDR  (`PPS_DIV_2_PHASE_3),
         .WIDTH_ADDR    (`PPS_DIV_2_WIDTH),
         .START_ADDR    (`PPS_DIV_2_START),
         .STOP_ADDR     (`PPS_DIV_2_STOP))
@@ -184,7 +181,6 @@ module top (
         .PHASE_0_ADDR  (`PPS_DIV_3_PHASE_0),
         .PHASE_1_ADDR  (`PPS_DIV_3_PHASE_1),
         .PHASE_2_ADDR  (`PPS_DIV_3_PHASE_2),
-        .PHASE_3_ADDR  (`PPS_DIV_3_PHASE_3),
         .WIDTH_ADDR    (`PPS_DIV_3_WIDTH),
         .START_ADDR    (`PPS_DIV_3_START),
         .STOP_ADDR     (`PPS_DIV_3_STOP))
