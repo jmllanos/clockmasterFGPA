@@ -17,7 +17,7 @@ module pps_divider ( input i_clk_10, // 10 mhz clock
 			         input i_pps_raw, // pps signal input 
 			         input [`DATA_WIDTH-1:0]  i_periodic_true, // A flag that determines if the divider output will be periodic or if it will generate for just a time interval
 			         input [`DATA_WIDTH-1:0]  i_div_number, // The integer value you want to the divide the PPS signal 
-			         input [`DATA_WIDTH*4-1:0] i_phase_us, // The delay or phase offset of the divider generated signal in microseconds 
+			         input [`DATA_WIDTH*3-1:0] i_phase_us, // The delay or phase offset of the divider generated signal in microseconds 
 			         input [`DATA_WIDTH-1:0]  i_width_us, // The time width of the divider signal
 			         input [`DATA_WIDTH-1:0]  i_start, 
 			         input [`DATA_WIDTH-1:0]  i_stop,
@@ -25,7 +25,7 @@ module pps_divider ( input i_clk_10, // 10 mhz clock
 			   	   );
 
 	
-	reg [`DATA_WIDTH*4-1:0] r_phase_counter = 32'd0; 
+	reg [`DATA_WIDTH*3-1:0] r_phase_counter = 32'd0; 
 	reg [`DATA_WIDTH-1:0] r_width_counter = 8'd0;
 	reg [`DATA_WIDTH-1:0] r_div_counter = 8'd0;
 	
