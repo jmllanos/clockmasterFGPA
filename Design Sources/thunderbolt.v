@@ -57,8 +57,6 @@ description:
 		parameter c_CMD_ID = 8'h8E;
 		parameter c_ETX = 8'h03;
 
-
-
 	/*reg [7:0] r_utc_cmd_packet [0:5]; // the 0x8E-A2 utc/gps timing config packet
 	always @ ( * ) begin
 	r_utc_cmd_packet[0] = c_DLE;
@@ -132,7 +130,7 @@ description:
 
 	// transmitter
 	reg r_tx_dv = 0;
-	reg [7:0] r_tx_byte = c_DLE;
+	reg [7:0] r_tx_byte = c_DLE;// necessary so the mux of r_utc_broadcast_cmd can do what it is supossed to
 	wire w_tx_done;
 	wire w_tx_active;
 
