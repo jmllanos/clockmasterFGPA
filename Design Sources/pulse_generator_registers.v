@@ -6,6 +6,8 @@ description:
 
 **********************************************************************/
 
+`include "address_map.vh"
+
 module pulse_generator_registers #(
     parameter PULSE_ENA      = `PG0_PULSE_ENA,
     parameter USR_YEAR_H     = `PG0_USR_YEAR_H,
