@@ -117,12 +117,12 @@ module spi_controller(
     //address decodification logic
     always@(posedge i_clk)
      if(i_rst==1'b1)begin
-        o_addr_bus<=8'h00;
+        o_addr_bus<=`ADDR_WIDTH'hFF;
         r_wr_enable<=1'b0;
      end
      else if((i_spi_ready==1'b1) && (present_state==WAIT_ADDR)) begin
         o_addr_bus<=i_spi_data_rx[`ADDR_WIDTH-1:0];
-        r_wr_enable<=i_spi_data_rx[`DATA_WIDTH-1]; 
+        r_wr_enable<=i_spi_data_rx[`ADDR_WIDTH]; 
      end
     
     //write/read_enable_logic
@@ -141,7 +141,7 @@ module spi_controller(
     always@(posedge i_clk)
     begin
         if(i_rst==1'b1) begin
-            o_data_write_bus<=8'h00;
+            o_data_write_bus<=`DATA_WIDTH'h0;
         end
         else if((i_spi_ready==1'b1) &&(present_state==WAIT_DATA)) begin
             o_data_write_bus<=i_spi_data_rx;

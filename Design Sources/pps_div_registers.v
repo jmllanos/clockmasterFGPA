@@ -66,14 +66,14 @@ module pps_div_registers #(parameter PER_TRUE_ADDR   =`PPS_DIV_0_PER_TRUE,
    always @(posedge i_clk_10)
     begin
      if(i_rst==1'b1) begin
-       o_periodic_true  <='h0;
-       o_div_number     <='h0;
-       phase_us_0       <='h0;
-       phase_us_1       <='h0;
-       phase_us_2       <='h0;
-       o_width_us       <='h0;
-       o_start          <='h0;
-       o_stop           <='h0;
+       o_periodic_true  <=`DATA_WIDTH'h0;
+       o_div_number     <=`DATA_WIDTH'h0;
+       phase_us_0       <=`DATA_WIDTH'h0;
+       phase_us_1       <=`DATA_WIDTH'h0;
+       phase_us_2       <=`DATA_WIDTH'h0;
+       o_width_us       <=`DATA_WIDTH'h0;
+       o_start          <=`DATA_WIDTH'h0;
+       o_stop           <=`DATA_WIDTH'h0;
      end
      else begin
 

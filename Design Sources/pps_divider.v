@@ -25,9 +25,9 @@ module pps_divider ( input i_clk_10, // 10 mhz clock
 			   	   );
 
 	
-	reg [`DATA_WIDTH*3-1:0] r_phase_counter = 32'd0; 
-	reg [`DATA_WIDTH-1:0] r_width_counter = 8'd0;
-	reg [`DATA_WIDTH-1:0] r_div_counter = 8'd0;
+	reg [`DATA_WIDTH*3-1:0] r_phase_counter = `DATA_WIDTH*3'd0; 
+	reg [`DATA_WIDTH-1:0] r_width_counter = `DATA_WIDTH'd0;
+	reg [`DATA_WIDTH-1:0] r_div_counter = `DATA_WIDTH'd0;
 	
 	wire w_phase_count_done; 
 	wire w_width_count_done; 
@@ -192,14 +192,14 @@ module pps_divider ( input i_clk_10, // 10 mhz clock
 	
 	// for accurate time base 
 	localparam c_CLKS_PER_1_US = 10; 
-	reg [32:0] r_clk_counter; 
+	reg [31:0] r_clk_counter; 
 	
 	always @ (posedge i_clk_10) 
 	begin
 		if (r_state_pps == s_HOLD_FOR_RISING_EDGE_PPS) begin
-			r_phase_counter <= 32'd0; 
-			r_width_counter <= 8'd0; 
-			r_div_counter <= 8'd0;
+			r_phase_counter <=`DATA_WIDTH*3'd0; 
+			r_width_counter <= `DATA_WIDTH'd0; 
+			r_div_counter <= `DATA_WIDTH'd0;
 			r_clk_counter <= 32'd0;  
 		end
 		if (r_state_pps == s_PHASE_COUNT) begin 
@@ -207,7 +207,7 @@ module pps_divider ( input i_clk_10, // 10 mhz clock
 				r_clk_counter <= r_clk_counter + 32'd1; 
 			end
 			else begin
-				r_phase_counter <= r_phase_counter + 32'd1;
+				r_phase_counter <= r_phase_counter + `DATA_WIDTH*3'd1;
 				r_clk_counter <= 32'd0;
 			end
 		end 
@@ -216,13 +216,13 @@ module pps_divider ( input i_clk_10, // 10 mhz clock
 				r_clk_counter <= r_clk_counter + 32'd1;   
 			end
 			else begin
-				r_width_counter <= r_width_counter + 8'd1;
+				r_width_counter <= r_width_counter + `DATA_WIDTH'd1;
 				r_clk_counter <= 32'd0;
 			end
 		end
 		if (r_state_pps == s_DIV_COUNT) begin
 			if (w_pps_rising_edge) begin
-				r_div_counter <= r_div_counter + 8'd1;
+				r_div_counter <= r_div_counter + `DATA_WIDTH'd1;
 			end 
 		end
 	end
