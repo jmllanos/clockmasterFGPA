@@ -81,10 +81,7 @@ description:
 		r_broadcast_cmd_packet[8] = c_ETX;
 	end*/
 
-	reg r_packet1_sent = 0; // flag to show that the first config packet has been sent
-	reg r_packet2_sent = 0; // flag to show that the second config packet has been sent
 	//reg [3:0] sent_index = 4'd0; // the index of the byte in the packet that is being sent
-
 	//reg [6:0] sent_index = 6'b000000; // *******************************************************
 	reg [8:0] sent_index=0;
 
@@ -183,11 +180,7 @@ always @(*) begin
     //-- Initial state. Start the trasmission
 		PRE_INI: begin
 			r_tx_dv = 0;
-			r_packet1_sent = 0;
-			r_packet2_sent = 0;
-			if ((!r_packet1_sent) || (!r_packet2_sent)) begin
-				next_state = INI;
-			end
+            next_state = INI;
 		end
     INI: begin
    	  //sent_index = 0;
@@ -211,10 +204,7 @@ always @(*) begin
         next_state = INI;
     end
 		STOP: begin
-		r_packet1_sent = 1;
-		r_packet2_sent = 1;
-
-		r_tx_dv = 0;
+            r_tx_dv = 0;
 		end
   endcase
 end
@@ -239,7 +229,7 @@ end
 
 
 	always @ (posedge i_clk) begin
-		if (i_rst || !r_packet1_sent || !r_packet2_sent) begin // reset or the config packets have not yet been sent
+		if (i_rst) begin // reset or the config packets have not yet been sent
 			r_rec_index <= 0;
 			r_prev_rx_byte <= 8'dx;
 			o_thunder_packet_dv <= 0;
