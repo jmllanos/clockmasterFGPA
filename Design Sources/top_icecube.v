@@ -11,7 +11,7 @@ description:
 //includes for design sub-modules
 
 `include "spi_block.v"
-`include "spi_slave.v"
+//`include "spi_slave.v"
 `include "spi_controller.v"
 `include "thunderbolt_block.v"
 `include "thunderbolt.v"
@@ -27,5 +27,6 @@ description:
 `include "main_memory.v"
 `include "mux_data_read.v"
 `include "channel_mux.v"
+//`include "SPI_slave.vhd"
 
 `include "top.v"

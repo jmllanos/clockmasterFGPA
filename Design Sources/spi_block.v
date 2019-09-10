@@ -26,6 +26,10 @@
 // Additional Comments:
 //          --This module is base in the used in the radar controller v2.1
 //            develop in Jicamarca Radio Observatory     
+//
+// v1.1 Victor Vasquez
+// spi_slave.v changed for SPI_slave.vhd
+// ...
 //////////////////////////////////////////////////////////////////////////////////
 
 `include "address_map.vh"
@@ -51,22 +55,21 @@ module spi_block
     wire w_spi_ready;
     wire w_spi_busy;
        
-      spi_slave #(.SPI_DATA_SIZE(`DATA_WIDTH))
-             SPI_SLAVE(
-                .i_clk(i_clk), // fpga clock (for over-sampling the SPI bus)
-				.i_rst(i_rst),
-				// SPI CONNECTIONS 
-				.i_SCLK(i_SCLK), 
-				.i_SSEL(i_SSEL), 
-				.i_MOSI(i_MOSI), // master out slave in
-				.o_MISO(o_MISO), // master in slave out
-				 //SPI DATA rx/tx 
-				 .i_spi_data_tx(w_spi_data_tx),
-				 .o_spi_data_rx(w_spi_data_rx), 
-				 //SPI signals
-				 .o_spi_ready(w_spi_ready),
-				 .o_spi_busy(w_spi_busy)
-             );
+    SPI_slave SPI_SLAVE(// data widht is always 8
+        .clk(i_clk), // fpga clock (for over-sampling the SPI bus)
+        .rst(i_rst),
+        // SPI CONNECTIONS 
+        .sclk(i_SCLK), 
+        .ss(i_SSEL), 
+        .mosi(i_MOSI), // master out slave in
+        .miso(o_MISO), // master in slave out
+         //SPI DATA rx/tx 
+         .tx_data(w_spi_data_tx),
+         .rx_data(w_spi_data_rx), 
+         //SPI signals
+         .spi_end(w_spi_ready)
+         //.o_spi_busy(w_spi_busy)
+    );
              
     // to decode SPI received frame
     // to select data to send via SPI
