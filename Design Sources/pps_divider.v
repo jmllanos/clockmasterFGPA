@@ -55,26 +55,7 @@ module pps_divider ( input i_clk_10, // 10 mhz clock
 	reg [3:0] r_state_pps = 4'd0; 
 	reg [3:0] r_next_state_pps = 4'd0; 
 	
-	// ---------------------------------------------------
-	// Edge detection logic 
-	// ---------------------------------------------------
 	
-	/*
-	// using this method requires one clock cycle for edge detection 
-	// store previous pps value 
-	reg r_prev_pps_raw = 0;  
-	always @(posedge i_clk_10) begin
-		if (i_rst || !i_start || i_stop) begin
-			r_prev_pps_raw <= 0; 
-		end
-		else begin
-			r_prev_pps_raw <= i_pps_raw; 
-		end
-	end
-	// rising edge logic 
-	wire w_pps_rising_edge;
-	assign w_pps_rising_edge = (r_prev_pps_raw == 0 && i_pps_raw == 1); 
-	*/ 
 	
 	// using this method requires two clock cycles for edge detection 
 	// however using a shift register helps with metastability issues 
@@ -192,7 +173,7 @@ module pps_divider ( input i_clk_10, // 10 mhz clock
 	
 	// for accurate time base 
 	localparam c_CLKS_PER_1_US = 10; 
-	reg [31:0] r_clk_counter; 
+	reg [23:0] r_clk_counter; 
 	
 	always @ (posedge i_clk_10) 
 	begin
@@ -204,20 +185,20 @@ module pps_divider ( input i_clk_10, // 10 mhz clock
 		end
 		if (r_state_pps == s_PHASE_COUNT) begin 
 			if (r_clk_counter < c_CLKS_PER_1_US - 1) begin
-				r_clk_counter <= r_clk_counter + 32'd1; 
+				r_clk_counter <= r_clk_counter + 24'd1; 
 			end
 			else begin
 				r_phase_counter <= r_phase_counter + 24'd1;
-				r_clk_counter <= 32'd0;
+				r_clk_counter <= 24'd0;
 			end
 		end 
 		if (r_state_pps == s_WIDTH_COUNT) begin
 			if (r_clk_counter < c_CLKS_PER_1_US - 1) begin
-				r_clk_counter <= r_clk_counter + 32'd1;   
+				r_clk_counter <= r_clk_counter + 24'd1;   
 			end
 			else begin
 				r_width_counter <= r_width_counter + `DATA_WIDTH'd1;
-				r_clk_counter <= 32'd0;
+				r_clk_counter <= 24'd0;
 			end
 		end
 		if (r_state_pps == s_DIV_COUNT) begin
