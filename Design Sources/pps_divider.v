@@ -178,10 +178,10 @@ module pps_divider ( input i_clk_10, // 10 mhz clock
 	always @ (posedge i_clk_10) 
 	begin
 		if (r_state_pps == s_HOLD_FOR_RISING_EDGE_PPS) begin
-			r_phase_counter <=`DATA_WIDTH*3'd0; 
+			r_phase_counter <= 24'd0; 
 			r_width_counter <= `DATA_WIDTH'd0; 
 			r_div_counter <= `DATA_WIDTH'd0;
-			r_clk_counter <= 32'd0;  
+			r_clk_counter <= 24'd0;  
 		end
 		if (r_state_pps == s_PHASE_COUNT) begin 
 			if (r_clk_counter < c_CLKS_PER_1_US - 1) begin

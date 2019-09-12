@@ -193,7 +193,7 @@ module pulse_generator #(parameter CLKS_PER_1_US = 10)(
 
             if (r_state == s_COUNT_MICRO) begin
                 if (r_clk_counter < CLKS_PER_1_US-1) begin
-					r_clk_counter <= r_clk_counter + 1;
+					r_clk_counter <= r_clk_counter + 1'b1;
 				end
 				else begin
 					r_clk_counter <= 0;
@@ -203,7 +203,7 @@ module pulse_generator #(parameter CLKS_PER_1_US = 10)(
             if (r_state == s_COUNT_MICRO) begin
                 if (r_clk_counter == CLKS_PER_1_US - 1) begin
 					if (r_micro_counter < i_width_period - 1) begin
-                        r_micro_counter <= r_micro_counter + 1;
+                        r_micro_counter <= r_micro_counter + 1'b1;
                     end
                     else begin
                         r_micro_counter <= 0;

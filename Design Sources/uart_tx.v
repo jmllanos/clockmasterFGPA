@@ -34,10 +34,12 @@ module uart_tx
    input       i_Tx_DV, // data valid ?
    input [7:0] i_Tx_Byte, // byte to be transmitted
    output      o_Tx_Active, // to show transmission in progress
-   output reg  o_Tx_Serial, // serial output
+   output reg  o_Tx_Serial = 1'b0, // serial output
    output      o_Tx_Done
    );
-
+   
+   reg [15:0] r_counter = 0;
+   
   localparam s_IDLE         = 3'b000;
   localparam s_TX_START_BIT = 3'b001;
   localparam s_TX_DATA_BITS = 3'b010;
@@ -45,7 +47,7 @@ module uart_tx
   localparam s_CLEANUP      = 3'b100;
 
   reg [2:0]    r_SM_Main     = 0;
-  reg [31:0]    r_Clock_Count = 0;
+  reg [31:0]   r_Clock_Count = 0;
   reg [2:0]    r_Bit_Index   = 0;
   reg [7:0]    r_Tx_Data     = 0;
   reg          r_Tx_Done     = 0;
@@ -72,7 +74,6 @@ module uart_tx
               r_SM_Main <= s_IDLE;
           end // case: s_IDLE
 
-
         // Send out Start Bit. Start bit = 0
         s_TX_START_BIT :
           begin
@@ -90,7 +91,6 @@ module uart_tx
                 r_SM_Main     <= s_TX_DATA_BITS;
               end
           end // case: s_TX_START_BIT
-
 
         // Wait CLKS_PER_BIT-1 clock cycles for data bits to finish
         s_TX_DATA_BITS :
@@ -120,7 +120,6 @@ module uart_tx
               end
           end // case: s_TX_DATA_BITS
 
-
         // Send out Stop bit.  Stop bit = 1
         s_TX_STOP_BIT :
           begin
@@ -140,7 +139,6 @@ module uart_tx
                 r_Tx_Active   <= 1'b0;
               end
           end // case: s_Tx_STOP_BIT
-
 
         // Stay here 1 clock
         s_CLEANUP :

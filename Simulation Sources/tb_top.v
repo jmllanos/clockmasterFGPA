@@ -79,12 +79,12 @@ default_clk_gen #(.CLK_PERIOD_NS(10000)) tb_sclk (.o_clk(SCLK)); // 1 MHZ
 
 initial begin
         pps_raw   <= 0;
-        #13333;
+        #113333;//13333
         forever begin
             pps_raw  <= 1;
-            #600
+            #5000
             pps_raw   <= 0;
-            #24999800;
+            #39995000;
         end
     end
 
