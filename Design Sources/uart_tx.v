@@ -34,10 +34,12 @@ module uart_tx
    input       i_Tx_DV, // data valid ?
    input [7:0] i_Tx_Byte, // byte to be transmitted
    output      o_Tx_Active, // to show transmission in progress
-   output reg  o_Tx_Serial, // serial output
+   output reg  o_Tx_Serial = 1'b0, // serial output
    output      o_Tx_Done
    );
-
+   
+   reg [15:0] r_counter = 0;
+   
   localparam s_IDLE         = 3'b000;
   localparam s_TX_START_BIT = 3'b001;
   localparam s_TX_DATA_BITS = 3'b010;

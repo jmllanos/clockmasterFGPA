@@ -79,6 +79,7 @@ module top (
 	thunderbolt_block thunderbolt(
         .i_clk                  (i_clk_10),
         .i_rst	                (i_rst),
+        .i_pps_raw              (i_pps_raw),
         .i_wr                   (w_wr),
         .i_addr                 (w_addr),
         .i_data                 (w_data_write),

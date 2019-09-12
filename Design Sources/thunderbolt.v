@@ -28,11 +28,16 @@ author: Victor Vasquez
 description:
 - 'output reg [135:0] o_thunder_data' replaced by vectors of 8-bits representing time of day,
   these will go to pulse_generator blocks and to a register map
+- correction to send process to send first byte 8'h10
+- correction of sent_index counter to reset and response at the correct second
+- enable with pps to sync processes, new process
+!!!!!!Architecture is poorly writen. This block should be redesigned!!!!!!!!!!
 **********************************************************************/
 
 	module thunderbolt (
         input 	i_clk,
         input 	i_rst,
+        input   i_pps_raw,
         // rs232 connection
         input	i_rx_thunder,  // serial from thunderbolt
         output	o_tx_thunder, // serial to thunderbolt
@@ -57,43 +62,19 @@ description:
 		parameter c_CMD_ID = 8'h8E;
 		parameter c_ETX = 8'h03;
 
-	/*reg [7:0] r_utc_cmd_packet [0:5]; // the 0x8E-A2 utc/gps timing config packet
-	always @ ( * ) begin
-	r_utc_cmd_packet[0] = c_DLE;
-	r_utc_cmd_packet[1] = c_CMD_ID;
-	r_utc_cmd_packet[2] = 8'hA2;
-	r_utc_cmd_packet[3] = 8'h01;
-	r_utc_cmd_packet[4] = c_DLE;
-	r_utc_cmd_packet[5] = c_ETX;
-	end*/
-
-
-	/*reg [7:0] r_broadcast_cmd_packet [0:8]; // the 0x8E-A5 broadcast map config packet (should respond with 8F-A5)
-	always @ ( * ) begin
-		r_broadcast_cmd_packet[0] = c_DLE;
-		r_broadcast_cmd_packet[1] = c_CMD_ID;
-		r_broadcast_cmd_packet[2] = 8'hA5;
-		r_broadcast_cmd_packet[3] = 8'h00;
-		r_broadcast_cmd_packet[4] = 8'h01;
-		r_broadcast_cmd_packet[5] = 8'h00;
-		r_broadcast_cmd_packet[6] = 8'h00;
-		r_broadcast_cmd_packet[7] = c_DLE;
-		r_broadcast_cmd_packet[8] = c_ETX;
-	end*/
-
-	//reg [3:0] sent_index = 4'd0; // the index of the byte in the packet that is being sent
-	//reg [6:0] sent_index = 6'b000000; // *******************************************************
+	//reg [6:0] sent_index = 6'b000000; //
 	reg [8:0] sent_index=0;
 
 	reg [7:0] r_utc_broadcast_cmd;
 	always @ ( * ) begin
 		case (sent_index)
-			//8'd0: r_utc_broadcast_cmd<= c_DLE;
+			//8'd0: r_utc_broadcast_cmd<= c_DLE;*********
 			8'd0: r_utc_broadcast_cmd<= c_CMD_ID;
 			8'd1: r_utc_broadcast_cmd<= 8'hA2;
 			8'd2: r_utc_broadcast_cmd<= 8'h01;
 			8'd3: r_utc_broadcast_cmd<= c_DLE;
 			8'd4: r_utc_broadcast_cmd<= c_ETX;
+            //
 			8'd5: r_utc_broadcast_cmd<= c_DLE;
 			8'd6: r_utc_broadcast_cmd<= c_CMD_ID;
 			8'd7: r_utc_broadcast_cmd<= 8'hA5;
@@ -103,10 +84,45 @@ description:
 			8'd11: r_utc_broadcast_cmd<= 8'h00;
 			8'd12: r_utc_broadcast_cmd<= c_DLE;
 			8'd13: r_utc_broadcast_cmd<= c_ETX;
-			default: r_utc_broadcast_cmd<=c_DLE;
+			//VVVVVVVVVVVVVVVdefault: r_utc_broadcast_cmd<=c_DLE;
 		endcase
 
 	end
+
+//VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV    
+   
+     reg    [1:0]r_pps_raw = 0;
+	// ---------------------------------------------------
+	// PPS detection logic
+	// ---------------------------------------------------
+	always @ (posedge i_clk) begin
+		if (i_rst) begin
+            r_pps_raw <= 0;
+		end
+		else begin
+			r_pps_raw <= {r_pps_raw[0], i_pps_raw};
+		end
+	end
+    
+    localparam STAGE_0 = 2'h0;// wait 1st pps
+    localparam STAGE_1 = 2'h1;// wait 2nd pps and send config packets
+    localparam STAGE_2 = 2'h2;// wait 3rd pps and start listening
+
+    reg [1:0]component_stage = 0;
+    
+    always @ (posedge i_clk) begin
+		if (i_rst) begin
+            component_stage <= STAGE_0;
+		end
+        if (r_pps_raw == 2'b01) begin
+            case (component_stage)
+                STAGE_0: component_stage <= STAGE_1;
+                STAGE_1: component_stage <= STAGE_2;
+            endcase
+        end
+	end
+
+//VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
 	// ---------------------------------------------------
 	// uart transmitter and receiver instantiation
@@ -154,11 +170,13 @@ localparam STOP = 4;
 reg cena;                //-- Counter enable
 
 always @(posedge i_clk)begin
-  if (i_rst)
-    sent_index = 0;
-  else if (cena) begin
-    sent_index = sent_index + 1'b1;
-		r_tx_byte <= r_utc_broadcast_cmd;
+    if (i_rst) begin
+        sent_index = 0;
+        r_tx_byte = c_DLE;//VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+    end
+    else if (cena && (component_stage == STAGE_1)) begin
+        sent_index = sent_index + 1'b1;
+        r_tx_byte <= r_utc_broadcast_cmd;
 	end
 end
 
@@ -166,47 +184,46 @@ end
 always @(posedge i_clk) begin
 	if (i_rst)
 		state <= PRE_INI;
-	else
+	else if (component_stage == STAGE_1) ///+++++++++++???????????????????????????????????????????????+++
 		state <= next_state;
 end
 
 //-- Control signal generation and next states ASM for transmitting packets
 always @(*) begin
-  next_state = state;
-  r_tx_dv = 0;
-  cena = 0;
-
-  case (state)
-    //-- Initial state. Start the trasmission
-		PRE_INI: begin
-			r_tx_dv = 0;
-            next_state = INI;
-		end
-    INI: begin
-   	  //sent_index = 0;
-      r_tx_dv = 1;
-      next_state = TXCAR;
-    end
-
-    //-- Wait until one car is transmitted
-    TXCAR: begin
-      if (w_tx_done)
-        next_state = NEXTCAR;
-    end
-
-    //-- Increment the character counter
-    //-- Finish when it is the last character
-    NEXTCAR: begin
-      cena = 1;
-      if (sent_index ==14)
-        next_state = STOP;
-      else
-        next_state = INI;
-    end
-		STOP: begin
-            r_tx_dv = 0;
-		end
-  endcase
+    next_state = state;
+    r_tx_dv = 0;
+    cena = 0;
+    if (component_stage == STAGE_1) begin
+        case (state)
+            //-- Initial state. Start the trasmission
+            PRE_INI: begin
+                r_tx_dv = 0;
+                next_state = INI;
+            end
+            INI: begin
+                //sent_index = 0;
+                r_tx_dv = 1;
+                next_state = TXCAR;
+            end
+            //-- Wait until one car is transmitted
+            TXCAR: begin
+                if (w_tx_done)
+                    next_state = NEXTCAR;
+            end
+            //-- Increment the character counter
+            //-- Finish when it is the last character
+            NEXTCAR: begin
+                cena = 1;////????????????????????
+                if (sent_index ==14)////??????????????
+                    next_state = STOP;
+                else
+                    next_state = INI;
+            end
+            STOP: begin
+                r_tx_dv = 0;
+            end
+        endcase
+    end  
 end
 
 	// ---------------------------------------------------
@@ -227,14 +244,20 @@ end
 	reg r_stuffing_flag = 0; // for accounting for stuffing bytes
 	reg r_receiving_flag = 0;
 
-
 	always @ (posedge i_clk) begin
 		if (i_rst) begin // reset or the config packets have not yet been sent
 			r_rec_index <= 0;
-			r_prev_rx_byte <= 8'dx;
+			r_prev_rx_byte <= 8'd0;//*******************************************
 			o_thunder_packet_dv <= 0;
+            o_thunder_year_l	<= 8'h0;
+            o_thunder_year_h	<= 8'h0;
+            o_thunder_month 	<= 8'h0;
+            o_thunder_day 		<= 8'h0;
+            o_thunder_hour 		<= 8'h0;
+            o_thunder_minutes 	<= 8'h0;
+            o_thunder_seconds 	<= 8'h0;
 		end
-		else begin
+		else if (component_stage == STAGE_2) begin///***************+++++++++++++++++++++++
 			if (w_rx_dv) begin // byte has been received from thunderbolt
 				r_prev_rx_byte <= w_rx_byte;  // set the previous byte received
 				// detect if id and subcode bytes have been received which indicates the start of a package
@@ -264,10 +287,10 @@ end
 					end
 				end
 			end
-			else begin // has not received a byte
+			//else begin // has not received a byte++++++++++++++++++++++++++++++++++
 				o_thunder_packet_dv <= 0; // packet data not valid (because should only be valid for one clock cycle)
 				// detecting the end of the package
-				if (r_rec_index == c_TIM_PACKET_SIZE) begin // reached end of package
+				if (r_rec_index == c_TIM_PACKET_SIZE - 2) begin // reached end of package VVVVVVVVVVVVVVVVVVVV++++++++++++++++++++++++++++++++++
 					r_receiving_flag <= 0; // reset receiving flag
 					r_rec_index <= 0; // reset the byte index
 					o_thunder_packet_dv <= 1; // set data valid flag
@@ -280,7 +303,7 @@ end
 					o_thunder_minutes 	<= r_byte_vector[11];
 					o_thunder_seconds 	<= r_byte_vector[10]; 
 				end
-			end
+			//end
 		end
 	end
 
