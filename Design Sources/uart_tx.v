@@ -38,7 +38,7 @@ module uart_tx
    output      o_Tx_Done
    );
    
-   reg [15:0] r_counter = 0;
+   //reg [15:0] r_counter = 0;
    
   localparam s_IDLE         = 3'b000;
   localparam s_TX_START_BIT = 3'b001;

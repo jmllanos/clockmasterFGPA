@@ -62,13 +62,12 @@ description:
 		parameter c_CMD_ID = 8'h8E;
 		parameter c_ETX = 8'h03;
 
-	//reg [6:0] sent_index = 6'b000000; //
 	reg [8:0] sent_index=0;
 
 	reg [7:0] r_utc_broadcast_cmd;
 	always @ ( * ) begin
 		case (sent_index)
-			//8'd0: r_utc_broadcast_cmd<= c_DLE;*********
+			//8'd0: r_utc_broadcast_cmd<= c_DLE;
 			8'd0: r_utc_broadcast_cmd<= c_CMD_ID;
 			8'd1: r_utc_broadcast_cmd<= 8'hA2;
 			8'd2: r_utc_broadcast_cmd<= 8'h01;
@@ -88,8 +87,6 @@ description:
 		endcase
 
 	end
-
-//VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV    
    
      reg    [1:0]r_pps_raw = 0;
 	// ---------------------------------------------------
@@ -121,8 +118,6 @@ description:
             endcase
         end
 	end
-
-//VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
 	// ---------------------------------------------------
 	// uart transmitter and receiver instantiation
@@ -184,7 +179,7 @@ end
 always @(posedge i_clk) begin
 	if (i_rst)
 		state <= PRE_INI;
-	else if (component_stage == STAGE_1) ///+++++++++++???????????????????????????????????????????????+++
+	else if (component_stage == STAGE_1)
 		state <= next_state;
 end
 
@@ -240,7 +235,6 @@ end
 	reg [7:0] r_byte_vector_next [c_TIM_PACKET_SIZE-1:0]; // timing packet byte vector
 
 	reg [7:0] r_rec_index; // position of byte inside incoming packet
-	reg [7:0] r_rec_index_next;
 	reg r_stuffing_flag = 0; // for accounting for stuffing bytes
 	reg r_receiving_flag = 0;
 
@@ -271,15 +265,13 @@ end
 					r_byte_vector[r_rec_index] <= w_rx_byte; // set the byte at the correct location in the received byte vector
 					r_rec_index <= r_rec_index + 8'b1;
 					// stuffing byte logic
-					if (w_rx_byte == c_DLE) begin // byte received is DLE byte
-						if (r_prev_rx_byte == c_DLE) begin // received two DLE bytes in a row
-							if (r_stuffing_flag == 0) begin // prev byte was not a stuffing byte
-								r_rec_index <= r_rec_index - 8'b1; // get rid of stuffing byte by decrementing the byte index
-								r_stuffing_flag <= 1;
-							end
-							else begin // prev byte was a stuffing byte
-								r_stuffing_flag <= 0;
-							end
+					if ((w_rx_byte == c_DLE) && (r_prev_rx_byte == c_DLE)) begin // received two DLE bytes in a row
+						if (r_stuffing_flag == 0) begin // prev byte was not a stuffing byte
+							r_rec_index <= r_rec_index;// - 8'b1; // get rid of stuffing byte by decrementing the byte index
+							r_stuffing_flag <= 1;
+						end
+						else begin // prev byte was a stuffing byte
+							r_stuffing_flag <= 0;
 						end
 					end
 					else begin // received a byte that was not DLE
@@ -291,8 +283,9 @@ end
 				o_thunder_packet_dv <= 0; // packet data not valid (because should only be valid for one clock cycle)
 				// detecting the end of the package
 				if (r_rec_index == c_TIM_PACKET_SIZE - 2) begin // reached end of package VVVVVVVVVVVVVVVVVVVV++++++++++++++++++++++++++++++++++
-					r_receiving_flag <= 0; // reset receiving flag
-					r_rec_index <= 0; // reset the byte index
+					r_receiving_flag	<= 0; // reset receiving flag
+					r_rec_index 		<= 0; // reset the byte index
+					r_stuffing_flag 	<= 0;
 					o_thunder_packet_dv <= 1; // set data valid flag
 					// matching data to output
 					o_thunder_year_l	<= r_byte_vector[16];

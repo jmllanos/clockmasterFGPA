@@ -10,7 +10,7 @@ upgrade: Victor Vasquez
      and one wrong clk cycle value was at the end of high perdiod
      pulses at the next cycle started 2 clocks cycles late because of transition
      of states. Now the states wait for the N-1 width
-   - all counters to 32-bit width
+   - all counters to 24-bit width...................
    - pulse_out waits for pps and its delayed 3 clock cycles max
    - signal in pulse_out is truly periodic
 **********************************************************************/
