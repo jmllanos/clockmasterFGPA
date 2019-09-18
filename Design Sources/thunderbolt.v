@@ -131,6 +131,7 @@ description:
 	// receiver
 	uart_rx #(.CLKS_PER_BIT	(c_CLKS_PER_BIT)) receiver
 			 (.i_Clock		(i_clk),
+			  .i_rst		(i_rst),
 			  .i_Rx_Serial	(i_rx_thunder),
 			  .o_Rx_DV		(w_rx_dv),
 		      .o_Rx_Byte	(w_rx_byte)
@@ -144,6 +145,7 @@ description:
 
 	uart_tx #(.CLKS_PER_BIT	(c_CLKS_PER_BIT)) transmitter
 			 (.i_Clock		(i_clk),
+			  .i_rst		(i_rst),
 			  .i_Tx_DV		(r_tx_dv),
 			  .i_Tx_Byte	(r_tx_byte),
 		      .o_Tx_Serial	(o_tx_thunder),

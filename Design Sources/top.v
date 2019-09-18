@@ -3,56 +3,66 @@
 file: top.v
 author: Eloise Perrochet
 description:
-
-
 **********************************************************/
 `timescale 1ns / 1ps
 
-//includes for design sub-modules
-
-//`include "spi_slave.v"
-//`include "regfile.v"
-//`include "uart_rx.v"
-//`include "uart_tx.v"
-//`include "pps_edge_detect.v"
-//`include "pps_divider.v"
-//`include "thunderbolt.v"
-//`include "pulse_generator.v"
-
 //`include "parpadeoLED.v" //prueba de que funciona
-
-
-//`include "pll16_10.v" //**********************se agrego pll para bajar clock
 
 `include "address_map.vh"
 
 module top (
-	            input i_clk_10,
-                input i_rst,
-                input i_pps_raw,
-                // SPI
-                input i_MOSI,
-                input i_SCLK,
-                input i_SSEL,
-                output o_MISO,
-                // UART
-                input i_rx,
-                output o_tx,
-                // Channel OUTPUTS
-                output o_ch_0,
-                output o_ch_1,
-                output o_ch_2,
-                output o_ch_3
-	);
+    input i_clk_10,
+    input i_rst,
+    input i_pps_raw,
+    // SPI
+    input i_MOSI,
+    input i_SCLK,
+    input i_SSEL,
+    output o_MISO,
+    // UART
+    input i_rx,
+    output o_tx,
+    // Channel OUTPUTS
+    output o_ch_0,
+    output o_ch_1,
+    output o_ch_2,
+    output o_ch_3
+);
 
-   wire [`DATA_WIDTH-1:0] w_data_read;
-   wire [`DATA_WIDTH-1:0] w_data_write;
-   wire [`ADDR_WIDTH-1:0] w_addr;
-   wire w_wr;
+////////////////////////////////////////////////////////////////////////////
+/// POWER ON RESET
+////////////////////////////////////////////////////////////////////////////
+    wire    w_por;
+
+    power_on_reset por(
+        .i_clk  (i_clk_10),
+        .o_por  (w_por)
+    );
+
+////////////////////////////////////////////////////////////////////////////
+/// RESET BLOCK
+////////////////////////////////////////////////////////////////////////////
+    wire w_rst;
+    
+    reset_block reset(
+        .i_clk      (i_clk_10),
+        .i_rst_man  (i_rst),
+        .i_rst_por  (w_por),
+        .i_rst_sw   (1'b0),
+        .o_rst      (w_rst)
+    );
+
+////////////////////////////////////////////////////////////////////////////
+/// SPI
+////////////////////////////////////////////////////////////////////////////
+    wire [`DATA_WIDTH-1:0] w_data_read;
+    wire [`DATA_WIDTH-1:0] w_data_write;
+    wire [`ADDR_WIDTH-1:0] w_addr;
+    wire w_wr;
         
-   spi_block spi (  
+    spi_block spi (  
         .i_clk            (i_clk_10),
-        .i_rst            (i_rst),
+        .i_rst            (w_rst),
         //SPI connections
         .i_MOSI           (i_MOSI),
         .i_SCLK           (i_SCLK),
@@ -63,9 +73,11 @@ module top (
         .o_addr_bus       (w_addr),
         .o_data_write_bus (w_data_write),
         .o_wr_enable_bus  (w_wr)
-   );
+    );
 
-//THUNDERBOLT COMPONENT//////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+/// THUNDERBOLT COMPONENT
+////////////////////////////////////////////////////////////////////////////
     wire [`DATA_WIDTH-1:0]	w_thunder_data_read;
 	wire w_thunder_packet_dv;
     wire [`DATA_WIDTH-1:0]	w_thunder_year_h;
@@ -78,7 +90,7 @@ module top (
 
 	thunderbolt_block thunderbolt(
         .i_clk                  (i_clk_10),
-        .i_rst	                (i_rst),
+        .i_rst	                (w_rst),
         .i_pps_raw              (i_pps_raw),
         .i_wr                   (w_wr),
         .i_addr                 (w_addr),
@@ -112,7 +124,7 @@ module top (
         .STOP_ADDR     (`PPS_DIV_0_STOP))
     pps_div_0 ( 
         .i_clk_10      (i_clk_10),
-        .i_rst         (i_rst),
+        .i_rst         (w_rst),
         .i_addr        (w_addr),
         .i_data        (w_data_write),
         .i_wr          (w_wr),
@@ -120,6 +132,7 @@ module top (
         .o_data        (w_pps_0_data_read),
         .o_pps_divided (w_pps_divided_0) 
     );
+
 ////////////////////////////////////////////////////////////////////////////
 /// PPPS_DIVIDER_1
 ////////////////////////////////////////////////////////////////////////////    
@@ -137,7 +150,7 @@ module top (
         .STOP_ADDR     (`PPS_DIV_1_STOP))
     pps_div_1 ( 
         .i_clk_10      (i_clk_10),
-        .i_rst         (i_rst),
+        .i_rst         (w_rst),
         .i_addr        (w_addr),
         .i_data        (w_data_write),
         .i_wr          (w_wr),
@@ -145,6 +158,7 @@ module top (
         .o_data        (w_pps_1_data_read),
         .o_pps_divided (w_pps_divided_1) 
     );
+
 ////////////////////////////////////////////////////////////////////////////
 /// PPPS_DIVIDER_2
 ////////////////////////////////////////////////////////////////////////////    
@@ -162,7 +176,7 @@ module top (
         .STOP_ADDR     (`PPS_DIV_2_STOP))
     pps_div_2 ( 
         .i_clk_10      (i_clk_10),
-        .i_rst         (i_rst),
+        .i_rst         (w_rst),
         .i_addr        (w_addr),
         .i_data        (w_data_write),
         .i_wr          (w_wr),
@@ -170,6 +184,7 @@ module top (
         .o_data        (w_pps_2_data_read),
         .o_pps_divided (w_pps_divided_2) 
     );  
+
 ////////////////////////////////////////////////////////////////////////////
 /// PPPS_DIVIDER_3
 ////////////////////////////////////////////////////////////////////////////    
@@ -187,7 +202,7 @@ module top (
         .STOP_ADDR     (`PPS_DIV_3_STOP))
     pps_div_3 ( 
         .i_clk_10      (i_clk_10),
-        .i_rst         (i_rst),
+        .i_rst         (w_rst),
         .i_addr        (w_addr),
         .i_data        (w_data_write),
         .i_wr          (w_wr),
@@ -195,6 +210,7 @@ module top (
         .o_data        (w_pps_3_data_read),
         .o_pps_divided (w_pps_divided_3) 
     );
+
 ////////////////////////////////////////////////////////////////////////////
 /// MAIN_MEMORY
 ////////////////////////////////////////////////////////////////////////////                      
@@ -204,7 +220,7 @@ module top (
                    
     main_memory MM (
          .i_clk         (i_clk_10),
-         .i_rst         (i_rst),
+         .i_rst         (w_rst),
          .i_addr        (w_addr),
          .i_data        (w_data_write),
          .o_data        (w_main_memory_data),
@@ -213,7 +229,9 @@ module top (
          .o_ch_sel      (w_ch_sel)
     );
  
-//PULSE GENERATOR 0//////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+/// PULSE GENERATOR 0
+////////////////////////////////////////////////////////////////////////////
 	wire [`DATA_WIDTH-1:0] w_pg_0_data_read;
     wire w_pulse_out_0;
 
@@ -234,7 +252,7 @@ module top (
         .WIDTH_PERIOD_0     (`PG0_WIDTH_PERIOD_0))
     pulse_gen_0(
         .i_clk                  (i_clk_10),
-        .i_rst                  (i_rst),
+        .i_rst                  (w_rst),
         .i_wr                   (w_wr),
         .i_addr                 (w_addr),
         .i_data                 (w_data_write),
@@ -249,9 +267,10 @@ module top (
         .i_thunder_seconds	    (w_thunder_seconds),
         .o_pulse_out            (w_pulse_out_0)
     );
-////////////////////////////////////////////////////////////////////////////
 
-//PULSE GENERATOR 1//////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+/// PULSE GENERATOR 1
+////////////////////////////////////////////////////////////////////////////
 	wire [`DATA_WIDTH-1:0]w_pg_1_data_read;
     wire w_pulse_out_1;
 
@@ -272,7 +291,7 @@ module top (
         .WIDTH_PERIOD_0     (`PG1_WIDTH_PERIOD_0))
     pulse_gen_1(
         .i_clk                  (i_clk_10),
-        .i_rst                  (i_rst),
+        .i_rst                  (w_rst),
         .i_wr                   (w_wr),
         .i_addr                 (w_addr),
         .i_data                 (w_data_write),
@@ -287,9 +306,10 @@ module top (
         .i_thunder_seconds	    (w_thunder_seconds),
         .o_pulse_out            (w_pulse_out_1)
     );
-////////////////////////////////////////////////////////////////////////////
 
-//PULSE GENERATOR 2//////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+/// PULSE GENERATOR 2/
+////////////////////////////////////////////////////////////////////////////
 	wire [`DATA_WIDTH-1:0]w_pg_2_data_read;
     wire w_pulse_out_2;
 
@@ -310,7 +330,7 @@ module top (
         .WIDTH_PERIOD_0     (`PG2_WIDTH_PERIOD_0))
     pulse_gen_2(
         .i_clk                  (i_clk_10),
-        .i_rst                  (i_rst),
+        .i_rst                  (w_rst),
         .i_wr                   (w_wr),
         .i_addr                 (w_addr),
         .i_data                 (w_data_write),
@@ -325,9 +345,10 @@ module top (
         .i_thunder_seconds	    (w_thunder_seconds),
         .o_pulse_out            (w_pulse_out_2)
     );
-////////////////////////////////////////////////////////////////////////////
 
-//PULSE GENERATOR 3//////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+/// PULSE GENERATOR 3
+////////////////////////////////////////////////////////////////////////////
 	wire [`DATA_WIDTH-1:0] w_pg_3_data_read;
     wire w_pulse_out_3;
 
@@ -348,7 +369,7 @@ module top (
         .WIDTH_PERIOD_0     (`PG3_WIDTH_PERIOD_0))
     pulse_gen_3(
         .i_clk                  (i_clk_10),
-        .i_rst                  (i_rst),
+        .i_rst                  (w_rst),
         .i_wr                   (w_wr),
         .i_addr                 (w_addr),
         .i_data                 (w_data_write),
@@ -369,7 +390,7 @@ module top (
 
     mux_data_read mux_data(
         .i_clk               (i_clk_10),
-        .i_rst               (i_rst),
+        .i_rst               (w_rst),
         .i_pps_div_data_0    (w_pps_0_data_read),
         .i_pps_div_data_1    (w_pps_1_data_read),
         .i_pps_div_data_2    (w_pps_2_data_read),
@@ -387,7 +408,7 @@ module top (
 ////////////////////////////////////////////////////////////////////////////
     channel_mux mux_0(
         .i_clk               (i_clk_10),
-        .i_rst               (i_rst),
+        .i_rst               (w_rst),
         .i_pps_divided       (w_pps_divided_0),
         .i_pulse_generated   (w_pulse_out_0),
         .i_enable            (w_ch_ena[0]),
@@ -399,7 +420,7 @@ module top (
 ////////////////////////////////////////////////////////////////////////////
     channel_mux mux_1(
         .i_clk               (i_clk_10),
-        .i_rst               (i_rst),
+        .i_rst               (w_rst),
         .i_pps_divided       (w_pps_divided_1),
         .i_pulse_generated   (w_pulse_out_1),
         .i_enable            (w_ch_ena[1]),
@@ -411,7 +432,7 @@ module top (
 ////////////////////////////////////////////////////////////////////////////                    
     channel_mux mux_2(
         .i_clk               (i_clk_10),
-        .i_rst               (i_rst),
+        .i_rst               (w_rst),
         .i_pps_divided       (w_pps_divided_2),
         .i_pulse_generated   (w_pulse_out_2),
         .i_enable            (w_ch_ena[2]),
@@ -423,7 +444,7 @@ module top (
 ////////////////////////////////////////////////////////////////////////////
     channel_mux mux_3(
         .i_clk               (i_clk_10),
-        .i_rst               (i_rst),
+        .i_rst               (w_rst),
         .i_pps_divided       (w_pps_divided_3),
         .i_pulse_generated   (w_pulse_out_3),
         .i_enable            (w_ch_ena[3]),
