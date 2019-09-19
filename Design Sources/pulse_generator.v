@@ -49,7 +49,7 @@ module pulse_generator #(parameter CLKS_PER_1_US = 10)(
 	// ---------------------------------------------------
 	always @ (posedge i_clk) begin
 		if (i_rst) begin
-            r_pps_raw <= 0;
+            r_pps_raw <= 0;//VVVVVVVVVVVVVVVVVV
 		end
 		else begin
 			r_pps_raw <= {r_pps_raw[0], i_pps_raw};
@@ -156,11 +156,11 @@ module pulse_generator #(parameter CLKS_PER_1_US = 10)(
 			s_GET_READY_COUNTER: begin
                 if (r_pps_raw == 2'b01) begin
 					r_next_state = s_COUNT_MICRO;
-                end
+                end//VVVVVVVVVVVVVVVVVV
 			end
 			
             s_COUNT_MICRO: begin
-                if (i_pulse_enable == 0) begin
+                if (i_pulse_enable == 0) begin//VVVVVVVVVVVVVVVVVV
                     r_next_state = s_COUNTDOWN_IDLE;
                 end
                 else begin
@@ -185,7 +185,7 @@ module pulse_generator #(parameter CLKS_PER_1_US = 10)(
 	end
 
 	always @ (posedge i_clk) begin
-		if (i_rst || !i_pulse_enable[0] || r_state == s_GET_READY_COUNTER) begin
+		if (i_rst || !i_pulse_enable[0] || r_state == s_GET_READY_COUNTER) begin//VVVVVVVVVVVVVVVVVV
 			r_micro_counter <= 0;
 			r_clk_counter <= 0;
 		end

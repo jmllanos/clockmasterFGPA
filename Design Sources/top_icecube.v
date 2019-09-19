@@ -28,5 +28,7 @@ description:
 `include "mux_data_read.v"
 `include "channel_mux.v"
 //`include "SPI_slave.vhd"
+`include "power_on_reset.v"
+`include "reset_block.v"
 
 `include "top.v"
