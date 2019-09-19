@@ -26,7 +26,9 @@ module top (
     output o_ch_0,
     output o_ch_1,
     output o_ch_2,
-    output o_ch_3
+    output o_ch_3,
+    // LED
+    output o_led
 );
 
 ////////////////////////////////////////////////////////////////////////////
@@ -451,5 +453,16 @@ module top (
         .i_selector          (w_ch_sel[3]),
         .o_channel           (o_ch_3)
     );
+
+////////////////////////////////////////////////////////////////////////////
+/// BLINKIN LED
+////////////////////////////////////////////////////////////////////////////
+
+ parpadeoLED blink_led
+(   .clock(i_clk_10),
+    .reset(w_rst),
+    .blink_led(o_led),   // User/boot LED next to power LED
+    .salida_prueba()  // extra
+);
 
 endmodule
