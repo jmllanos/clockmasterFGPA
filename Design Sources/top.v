@@ -458,11 +458,12 @@ module top (
 /// BLINKIN LED
 ////////////////////////////////////////////////////////////////////////////
 
- parpadeoLED blink_led
+/* parpadeoLED blink_led
 (   .clock(i_clk_10),
     .reset(w_rst),
     .blink_led(o_led),   // User/boot LED next to power LED
     .salida_prueba()  // extra
 );
+*/
 
 endmodule

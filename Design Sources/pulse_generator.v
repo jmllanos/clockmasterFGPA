@@ -155,7 +155,10 @@ module pulse_generator #(parameter CLKS_PER_1_US = 10)(
 
 			s_GET_READY_COUNTER: begin
                 if (r_pps_raw == 2'b01) begin
-					r_next_state = s_COUNT_MICRO;
+		      r_next_state = s_COUNT_MICRO;
+                end
+                else begin
+                      r_next_state = s_GET_READY_COUNTER;      
                 end//VVVVVVVVVVVVVVVVVV
 			end
 			
