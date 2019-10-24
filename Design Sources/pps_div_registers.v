@@ -30,7 +30,7 @@
 //| 0x05  | phase lsb|
 //| 0x06  | width    |
 //| 0x07  | start    |
-//| 0x08  | stop 	 |
+//| 0x08  | stop     |
 //|-------|----------|
 //
 
@@ -76,7 +76,7 @@ module pps_div_registers #(parameter PER_TRUE_ADDR   =`PPS_DIV_0_PER_TRUE,
        o_stop           <=`DATA_WIDTH'h0;
      end
      else begin
-
+        
          //writing process
          if(i_wr==1)begin
            case (i_addr)
@@ -91,6 +91,7 @@ module pps_div_registers #(parameter PER_TRUE_ADDR   =`PPS_DIV_0_PER_TRUE,
            endcase
           end
           else begin
+          
           // Reading process
             case (i_addr)
                 PER_TRUE_ADDR: o_data<=o_periodic_true;
@@ -101,6 +102,7 @@ module pps_div_registers #(parameter PER_TRUE_ADDR   =`PPS_DIV_0_PER_TRUE,
                 WIDTH_ADDR   : o_data<=o_width_us;
                 START_ADDR   : o_data<=o_start;
                 STOP_ADDR    : o_data<=o_stop;
+                default      : o_data<=8'h0;
            endcase
           end
       o_phase_us={phase_us_2,phase_us_1,phase_us_0};
