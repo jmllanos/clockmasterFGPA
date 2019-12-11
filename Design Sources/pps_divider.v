@@ -1,27 +1,33 @@
 /*********************************************************************
+Jicamarca Radio Observatory
 
 file: pps_divider.v
 author: Eloise Perrochet 
 description: 
- 
-**********************************************************************/
 
-module pps_divider ( 	input i_clk_10, // 10 mhz clock 
-			input i_rst, // reset 
-			input i_pps_raw, // pps signal input 
-			input [7:0] i_periodic_true, // A flag that determines if the divider output will be periodic or if it will generate for just a time interval
-			input [7:0] i_div_number, // The integer value you want to the divide the PPS signal 
-			input [31:0] i_phase_us, // The delay or phase offset of the divider generated signal in microseconds 
-			input [7:0] i_width_us, // The time width of the divider signal
-			input [7:0] i_start, 
-			input [7:0] i_stop,
-			output o_pps_divided
+Change added by J.Llanos at 08/28/2019
+parameterization of data width (bits)
+
+
+**********************************************************************/
+`include "address_map.vh"
+
+module pps_divider ( input i_clk_10, // 10 mhz clock 
+			         input i_rst, // reset 
+			         input i_pps_raw, // pps signal input 
+			         input [`DATA_WIDTH-1:0]  i_periodic_true, // A flag that determines if the divider output will be periodic or if it will generate for just a time interval
+			         input [`DATA_WIDTH-1:0]  i_div_number, // The integer value you want to the divide the PPS signal 
+			         input [`DATA_WIDTH*3-1:0] i_phase_us, // The delay or phase offset of the divider generated signal in microseconds 
+			         input [`DATA_WIDTH-1:0]  i_width_us, // The time width of the divider signal
+			         input [`DATA_WIDTH-1:0]  i_start, 
+			         input [`DATA_WIDTH-1:0]  i_stop,
+			         output o_pps_divided
 			   	   );
 
 	
-	reg [31:0] r_phase_counter = 32'd0; 
-	reg [7:0] r_width_counter = 8'd0;
-	reg [7:0] r_div_counter = 8'd0;
+	reg [`DATA_WIDTH*3-1:0] r_phase_counter = 24'd0; 
+	reg [`DATA_WIDTH-1:0] r_width_counter = `DATA_WIDTH'd0;
+	reg [`DATA_WIDTH-1:0] r_div_counter = `DATA_WIDTH'd0;
 	
 	wire w_phase_count_done; 
 	wire w_width_count_done; 
@@ -49,26 +55,7 @@ module pps_divider ( 	input i_clk_10, // 10 mhz clock
 	reg [3:0] r_state_pps = 4'd0; 
 	reg [3:0] r_next_state_pps = 4'd0; 
 	
-	// ---------------------------------------------------
-	// Edge detection logic 
-	// ---------------------------------------------------
 	
-	/*
-	// using this method requires one clock cycle for edge detection 
-	// store previous pps value 
-	reg r_prev_pps_raw = 0;  
-	always @(posedge i_clk_10) begin
-		if (i_rst || !i_start || i_stop) begin
-			r_prev_pps_raw <= 0; 
-		end
-		else begin
-			r_prev_pps_raw <= i_pps_raw; 
-		end
-	end
-	// rising edge logic 
-	wire w_pps_rising_edge;
-	assign w_pps_rising_edge = (r_prev_pps_raw == 0 && i_pps_raw == 1); 
-	*/ 
 	
 	// using this method requires two clock cycles for edge detection 
 	// however using a shift register helps with metastability issues 
@@ -182,41 +169,41 @@ module pps_divider ( 	input i_clk_10, // 10 mhz clock
 	
 	assign w_phase_count_done = (r_phase_counter >= i_phase_us); 
 	assign w_width_count_done = (r_width_counter >= i_width_us); 
-	assign w_div_count_done = (i_div_number == 0) ? 1 : (r_div_counter >= i_div_number - 1); // set the count done to 1 if the div number is 0 
+	assign w_div_count_done = (i_div_number == 0) ? 1'b1 : (r_div_counter >= i_div_number - 1); // set the count done to 1 if the div number is 0 
 	
 	// for accurate time base 
-	parameter c_CLKS_PER_1_US = 10; 
-	reg [32:0] r_clk_counter; 
+	localparam c_CLKS_PER_1_US = 10; 
+	reg [23:0] r_clk_counter; 
 	
 	always @ (posedge i_clk_10) 
 	begin
 		if (r_state_pps == s_HOLD_FOR_RISING_EDGE_PPS) begin
-			r_phase_counter <= 32'd0; 
-			r_width_counter <= 32'd0; 
-			r_div_counter <= 32'd0;
-			r_clk_counter <= 32'd0;  
+			r_phase_counter <= 24'd0; 
+			r_width_counter <= `DATA_WIDTH'd0; 
+			r_div_counter <= `DATA_WIDTH'd0;
+			r_clk_counter <= 24'd0;  
 		end
 		if (r_state_pps == s_PHASE_COUNT) begin 
 			if (r_clk_counter < c_CLKS_PER_1_US - 1) begin
-				r_clk_counter <= r_clk_counter + 32'd1; 
+				r_clk_counter <= r_clk_counter + 24'd1; 
 			end
 			else begin
-				r_phase_counter <= r_phase_counter + 32'd1;
-				r_clk_counter <= 32'd0;
+				r_phase_counter <= r_phase_counter + 24'd1;
+				r_clk_counter <= 24'd0;
 			end
 		end 
 		if (r_state_pps == s_WIDTH_COUNT) begin
 			if (r_clk_counter < c_CLKS_PER_1_US - 1) begin
-				r_clk_counter <= r_clk_counter + 32'd1;   
+				r_clk_counter <= r_clk_counter + 24'd1;   
 			end
 			else begin
-				r_width_counter <= r_width_counter + 8'd1;
-				r_clk_counter <= 32'd0;
+				r_width_counter <= r_width_counter + `DATA_WIDTH'd1;
+				r_clk_counter <= 24'd0;
 			end
 		end
 		if (r_state_pps == s_DIV_COUNT) begin
 			if (w_pps_rising_edge) begin
-				r_div_counter <= r_div_counter + 8'd1;
+				r_div_counter <= r_div_counter + `DATA_WIDTH'd1;
 			end 
 		end
 	end

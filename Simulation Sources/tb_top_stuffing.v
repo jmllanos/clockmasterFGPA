@@ -49,8 +49,8 @@ reg [7:0] thunder_minutes;
 reg [7:0] thunder_hour;
 reg [7:0] thunder_day;
 reg [7:0] thunder_month;
-reg [7:0] thunder_year0;
-reg [7:0] thunder_year1;
+reg [7:0] thunder_year_h;
+reg [7:0] thunder_year_l;
 
 top DUT( 
         .i_clk_10(clk),
@@ -151,12 +151,12 @@ initial begin
 	   
 	   //Pulse generator 0 configuration	
 		write_data(`PG0_PULSE_ENA,     'h01);
-		write_data(`PG0_USR_YEAR_H,    'he4);
-		write_data(`PG0_USR_YEAR_L,    'h07);
+		write_data(`PG0_USR_YEAR_H,    'h08);
+		write_data(`PG0_USR_YEAR_L,    'h10);// to mess up stuffing
 		write_data(`PG0_USR_MONTH,     'd07);
 		write_data(`PG0_USR_DAY,       'd15);
-		write_data(`PG0_USR_HOUR,      'd11);
-		write_data(`PG0_USR_MINUTES,   'd55);
+		write_data(`PG0_USR_HOUR,      'd16);// to mess up stuffing
+		write_data(`PG0_USR_MINUTES,   'd16);// to mess up stuffing
 		write_data(`PG0_USR_SECONDS,   'd29);
 		write_data(`PG0_WIDTH_HIGH_3,  'd00);
 		write_data(`PG0_WIDTH_HIGH_2,  'd00);
@@ -175,65 +175,65 @@ initial begin
 		
 		
 		thunder_seconds <= 8'd27; 
-		thunder_minutes <= 8'd55; 
+		thunder_minutes <= 8'd16;// stuff
 		thunder_hour    <= 8'd16;// stuff
 		thunder_day     <= 8'd15; 
 		thunder_month   <= 8'd07; 
-		thunder_year0   <= 8'he4; 
-		thunder_year1   <= 8'h07; // 16 in dec is 10 in hex be careful 
+		thunder_year_h  <= 8'h08; // 16 in dec is 10 in hex be careful 
+		thunder_year_l  <= 8'd16;// stuff
 		@(negedge pps_raw);
-		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year0, thunder_year1);
+		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year_h, thunder_year_l);
 		
 		thunder_seconds <= 8'd28; 
-		thunder_minutes <= 8'd55; 
+		thunder_minutes <= 8'd16;// stuff
 		thunder_hour    <= 8'd16;// stuff
 		thunder_day     <= 8'd15; 
 		thunder_month   <= 8'd07; 
-		thunder_year0   <= 8'he4; 
-		thunder_year1   <= 8'h07; // 16 in dec is 10 in hex be careful 
+		thunder_year_h  <= 8'h08; // 16 in dec is 10 in hex be careful 
+		thunder_year_l  <= 8'd16;// stuff
 		@(negedge pps_raw);
-		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year0, thunder_year1);
+		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year_h, thunder_year_l);
 		
 		thunder_seconds <= 8'd29; 
-		thunder_minutes <= 8'd55; 
+		thunder_minutes <= 8'd16;// stuff
 		thunder_hour    <= 8'd16;// stuff
 		thunder_day     <= 8'd15; 
 		thunder_month   <= 8'd07; 
-		thunder_year0   <= 8'he4; 
-		thunder_year1   <= 8'h07; // 16 in dec is 10 in hex be careful 
+		thunder_year_h  <= 8'h08; // 16 in dec is 10 in hex be careful 
+		thunder_year_l  <= 8'd16;// stuff
 		@(negedge pps_raw);
-		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year0, thunder_year1);
+		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year_h, thunder_year_l);
 		
 		thunder_seconds <= 8'd30; 
-		thunder_minutes <= 8'd55; 
+		thunder_minutes <= 8'd16;// stuff
 		thunder_hour    <= 8'd16;// stuff
 		thunder_day     <= 8'd15; 
 		thunder_month   <= 8'd07; 
-		thunder_year0   <= 8'he4; 
-		thunder_year1   <= 8'h07; // 16 in dec is 10 in hex be careful 
+		thunder_year_h  <= 8'h08; // 16 in dec is 10 in hex be careful 
+		thunder_year_l  <= 8'd16;// stuff
 		@(negedge pps_raw);
-		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year0, thunder_year1);
+		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year_h, thunder_year_l);
 		
 		thunder_seconds <= 8'd31; 
-		thunder_minutes <= 8'd55; 
+		thunder_minutes <= 8'd16;// stuff
 		thunder_hour    <= 8'd16;// stuff
 		thunder_day     <= 8'd15; 
 		thunder_month   <= 8'd07; 
-		thunder_year0   <= 8'he4; 
-		thunder_year1   <= 8'h07; // 16 in dec is 10 in hex be careful 
+		thunder_year_h  <= 8'h08; // 16 in dec is 10 in hex be careful 
+		thunder_year_l  <= 8'd16;// stuff
 		@(negedge pps_raw);
-		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year0, thunder_year1);
+		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year_h, thunder_year_l);
 		
 		
 		thunder_seconds <= 8'd32; 
-		thunder_minutes <= 8'd55; 
+		thunder_minutes <= 8'd16;// stuff
 		thunder_hour    <= 8'd16;// stuff
 		thunder_day     <= 8'd15; 
 		thunder_month   <= 8'd07; 
-		thunder_year0   <= 8'he4; 
-		thunder_year1   <= 8'h07; // 16 in dec is 10 in hex be careful 
+		thunder_year_h  <= 8'h08; // 16 in dec is 10 in hex be careful 
+		thunder_year_l  <= 8'd16;// stuff
 		@(negedge pps_raw);
-		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year0, thunder_year1);
+		send_thunder_packet(thunder_seconds, thunder_minutes, thunder_hour, thunder_day, thunder_month, thunder_year_h, thunder_year_l);
 		
 		
 		
@@ -325,8 +325,8 @@ task send_byte;
 		input [7:0] thunder_hour;
 		input [7:0] thunder_day;
 		input [7:0] thunder_month;
-		input [7:0] thunder_year0;
-		input [7:0] thunder_year1;
+		input [7:0] thunder_year_h;
+		input [7:0] thunder_year_l;
 		begin
 			send_thunder_byte(8'h10);
 			send_thunder_byte(c_TIM_ID); 
@@ -342,12 +342,14 @@ task send_byte;
 			send_thunder_byte(8'h00);
 			send_thunder_byte(thunder_seconds); // seconds 
 			send_thunder_byte(thunder_minutes); // minutes 
+			send_thunder_byte(8'h10); // stuff
 			send_thunder_byte(thunder_hour); // hours 
 			send_thunder_byte(8'h10); // stuff
 			send_thunder_byte(thunder_day); // day
 			send_thunder_byte(thunder_month); // month 
-			send_thunder_byte(thunder_year0); // year 
-			send_thunder_byte(thunder_year1); // year 
+			send_thunder_byte(thunder_year_h); // year 
+			send_thunder_byte(thunder_year_l); // year 
+			send_thunder_byte(8'h10); // stuff
 			send_thunder_byte(8'h10);
 			send_thunder_byte(8'h03);
 		
