@@ -1,22 +1,16 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 09/02/2019 02:30:16 PM
-// Design Name: 
-// Module Name: main_memory
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
+// Jicamarca Radio Observatory
+// Verilog file Name: main_memory
+// Project: Clock master
+//
+// Create by J.Llanos at 08/28/2019
+//
+// Description:
+//   The main memory contain the registers that configure the channel outputs.
+//    Also this memory has free space for future information like status, etc.
+//
+//
 //////////////////////////////////////////////////////////////////////////////////
 
 `include "address_map.vh"

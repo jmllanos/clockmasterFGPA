@@ -1,38 +1,18 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Jicamarca Radio Observatory
-// Engineer: J. Llanos
-// 
-// Create Date: 08/22/2019 02:04:08 PM
-// Design Name: 
-// Module Name: pps_div_registers
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-//  addr      data
-//|------------------|
-//| pps divider      |
-//|------------------|
-//| 0x00  | per true |
-//| 0x01  | div num  |
-//| 0x02  | phase    |
-//| 0x03  | phase    |
-//| 0x04  | phase    |
-//| 0x05  | phase lsb|
-//| 0x06  | width    |
-//| 0x07  | start    |
-//| 0x08  | stop     |
-//|-------|----------|
+// Verilog File Name: address_map
+// Project: Clock master
 //
+// Create by J.Llanos at 08/22/2019
+//
+// Description:
+//     -Register of the frequency divider(pps divider)
+//     -The module has as parameter its address
+//     - When the address to read it is out of range, the output it is a vector of '0' 
+//
+//
+//////////////////////////////////////////////////////////////////////////////////
 
 `include "address_map.vh"
 
@@ -102,7 +82,7 @@ module pps_div_registers #(parameter PER_TRUE_ADDR   =`PPS_DIV_0_PER_TRUE,
                 WIDTH_ADDR   : o_data<=o_width_us;
                 START_ADDR   : o_data<=o_start;
                 STOP_ADDR    : o_data<=o_stop;
-                default      : o_data<=8'h0;
+                default      : o_data<=8'h0; // When the address it is out of range send a vector of '0'
            endcase
           end
       o_phase_us={phase_us_2,phase_us_1,phase_us_0};

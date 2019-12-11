@@ -1,24 +1,21 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 09/02/2019 04:54:49 PM
-// Design Name: 
-// Module Name: mux_address
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
+// Jicamarca Radio Observatory
+// Verilog File Name: mux_data_read
+// Project: Clock master
+//
+// Create by J.Llanos at 08/28/2019
+//
 // Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
+//    This module recieves as input all the "outputs data" of the registers 
+//    of the modules. 
+//    An OR gate it is apply between all the input
+//    When a module has an address out of it ranges the output data is a vector
+//    of '0'.
+//    When the OR gate it is apply only the desire register's data out
+//    this module
+//
+////////////////////////////////////////////////////////////////////////////////////
 
 module mux_data_read(
                     input i_clk,

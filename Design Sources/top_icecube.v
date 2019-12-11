@@ -4,6 +4,14 @@ file: top.v
 author: Eloise Perrochet
 description:
 
+Update by V. Vasquez at 09/2019
+
+This is the file to synthetize on iCEcube
+
+This file call all the files of the design 
+
+The module spi_slabe.v is not working properly, the module
+SPI_slave.vhd is used instated.
 
 **********************************************************/
 `timescale 1ns / 1ps

@@ -1,23 +1,16 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 08/22/2019 01:34:30 PM
-// Design Name: 
-// Module Name: channel_mux
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
+// Jicamarca Radio Observatory
+// Verilog File Name: channel_mux
+// Project: Clock master
+//
+// Create by J.Llanos at 08/28/2019
+//
+// Description:
+//   Channel Output, this multiplexor choose between
+//   the Frequency divider or the pulse generator.
+//
+////////////////////////////////////////////////////////////////////////////////////
 
 
 module channel_mux(

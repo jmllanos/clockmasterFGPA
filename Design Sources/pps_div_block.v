@@ -1,21 +1,15 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Jicamarca Radio Observatory
-//  
-// Create Date: 08/22/2019 01:47:38 PM
-// Design Name: 
-// Module Name: pps_div_block
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
+// Verilog Header Name: pps_div_block
+// Project: Clock master
+//
+// Create by J.Llanos at 08/28/2019
+//
+// Description:
+//    This block has inside the connection of the pps divider registers 
+//    and pps divider. This allow use modularity for each channel
+//
 //////////////////////////////////////////////////////////////////////////////////
 
 

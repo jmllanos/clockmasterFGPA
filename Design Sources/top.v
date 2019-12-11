@@ -1,9 +1,20 @@
-/**********************************************************
+////////////////////////////////////////////////////////
+//
+// Jicamarca Radio Observatory
+//
+// Project: Clock master
+//
+// Verilog file: top.v
+// author: Eloise Perrochet
+//
+// Version 2.0
+// Updated by J.Llanos at 08/28/2019
+//
+// Description:
+//   Clock Master Top file, instance all the modules used
+//
+////////////////////////////////////////////////////
 
-file: top.v
-author: Eloise Perrochet
-description:
-**********************************************************/
 `timescale 1ns / 1ps
 
 //`include "parpadeoLED.v" //prueba de que funciona
